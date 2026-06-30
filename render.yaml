@@ -1,0 +1,42 @@
+# Render Blueprint — deploys this Express app as a free Web Service.
+# In Render: New + → Blueprint → pick this repo. Render reads this file automatically.
+# Secrets (API keys etc.) are marked sync:false so you set them in the dashboard, NOT in git.
+services:
+  - type: web
+    name: ai-reply-assistant
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/config
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # --- AI provider (required) ---
+      - key: PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5.5
+      # --- Admin analytics ---
+      - key: ADMIN_PASSWORD
+        sync: false
+      # --- Optional context enrichment ---
+      - key: YOUTUBE_API_KEY
+        sync: false
+      # --- Phase 2: Supabase DB (optional until you wire accounts) ---
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # --- Phase 2: Google login (optional) ---
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true

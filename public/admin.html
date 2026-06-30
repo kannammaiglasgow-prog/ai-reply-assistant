@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Analytics — AI Reply Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-logo" aria-hidden="true">📊</span>
+      <span class="brand-name">Admin Analytics</span>
+    </div>
+    <div class="topbar-right">
+      <a href="index.html" class="nav-link">← Back to app</a>
+      <button id="themeToggle" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">☀️</button>
+      <button id="logoutBtn" class="ghost-btn hidden">Log out</button>
+    </div>
+  </header>
+
+  <!-- Password gate -->
+  <main id="gate" class="gate">
+    <form id="loginForm" class="panel gate-card">
+      <div class="empty-icon">🔒</div>
+      <h2>Admin access</h2>
+      <p class="muted">Enter the admin password to view analytics.</p>
+      <input type="password" id="password" placeholder="Admin password" autocomplete="current-password" />
+      <button type="submit" class="primary-btn">Unlock</button>
+      <p id="loginError" class="status error"></p>
+    </form>
+  </main>
+
+  <!-- Dashboard -->
+  <main id="dashboard" class="layout-single hidden">
+    <div class="dash-head">
+      <h1>Analytics</h1>
+      <div class="muted" id="activeProvider"></div>
+    </div>
+
+    <section class="stat-grid" id="statGrid"></section>
+
+    <section class="panel dash-panel">
+      <h3>Usage controls <small class="muted">(this browser)</small></h3>
+      <p class="muted" id="usageState">—</p>
+      <div class="testing-controls">
+        <button type="button" id="resetDailyBtn" class="ghost-btn">↺ Reset Daily Usage</button>
+        <span id="resetMsg" class="muted"></span>
+      </div>
+      <p class="muted" style="margin-top:10px;font-size:0.8rem">
+        Resets the daily free-reply limit stored in this browser. Per-user, server-side reset
+        (for any account) arrives with Phase 2 once Supabase is connected.
+      </p>
+    </section>
+
+    <section class="panel dash-panel">
+      <h3>Feedback by style</h3>
+      <div id="byStyle" class="table-wrap"></div>
+    </section>
+
+    <div class="dash-two">
+      <section class="panel dash-panel">
+        <h3>Generations by language</h3>
+        <div id="byLanguage" class="bars"></div>
+      </section>
+      <section class="panel dash-panel">
+        <h3>Generations by day</h3>
+        <div id="byDay" class="bars"></div>
+      </section>
+    </div>
+
+    <section class="panel dash-panel">
+      <h3>Recent feedback</h3>
+      <div id="recent" class="table-wrap"></div>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
