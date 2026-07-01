@@ -198,3 +198,36 @@ EDIT  HANDOFF.md                 # kept current throughout — read this first, 
 Read `HANDOFF.md` top to bottom (it's kept current), then check this assistant's persistent memory
 for `feedback_deploy_workflow.md` and `project_deploy_target.md` before doing anything with
 deployment. Don't re-attempt Vercel without first getting real runtime logs from the user.
+
+---
+
+# Session 2026-07-01 — Login gate, token system, referral engine, membership (Phases A/B/C)
+
+The user supplied a full product spec: Google-only login, guest 1-free-then-login, admin-
+configurable tokens (starter 50 / cost 1), referral rewards with anti-fraud rules, membership
+plans with Stripe prep, user dashboard, admin control over every number. Built in three phases
+in one session, committed as `4eea09a`, pushed, and verified live on Render (~60s deploy).
+**`HANDOFF.md` "Phase 2 progress" has the full technical detail — read that, not this.**
+
+- **Phase A:** signed guest-usage cookie + login modal at the limit; server-side token
+  check-before/deduct-after on `/api/generate*` (`resolveGate`/`gate.commit`);
+  `token_transactions` + `usage_logs` tables; ⚙️ Settings panel (11 keys) on /admin.html.
+- **Phase B:** referral payout engine (`processReferralReward`) with signup /
+  first_generation triggers per admin `referral_min_action`, monthly cap with deferred payout,
+  race-safe one-way `pending→reward_sent`; `/ref/:code`; 🎁 Refer & Earn modal.
+- **Phase C:** plans API + admin plan editor; `/api/checkout` Stripe seam (clear 503 until
+  `STRIPE_SECRET_KEY` exists) + ready `activateSubscription()` for the future webhook; user
+  dashboard modal (profile/tokens/plan/payment-status/referral/usage history) on the user chip.
+- **Real bug found & fixed:** auth.js read `GOOGLE_CLIENT_ID`/`SESSION_SECRET` at module scope —
+  ESM import hoisting runs that BEFORE server.js's `dotenv.config()`, so `.env` login creds were
+  silently ignored (worked on Render only because dashboard env vars are real process env).
+  Now lazy like db.js. This was why Phase 2 login had "never been tested end-to-end".
+- **Testing method (no creds yet):** fake `SUPABASE_URL`/`GOOGLE_CLIENT_ID` in `.env`
+  (reverted after) — verified guest gate end-to-end in the browser (real Gemini reply on try 1,
+  login modal on try 2), all new endpoints' auth gates, all modal layouts by screenshot, and —
+  critically — that with NO creds the app still behaves exactly like Phase 1 (verified before
+  and after every phase). Live site confirmed unchanged for users post-deploy.
+- **Still pending:** real activation (user must create Supabase + Google OAuth creds and set
+  Render env vars — steps in HANDOFF), Stripe checkout + webhook, admin per-user management,
+  translations of the new i18n keys beyond en.json, ADMIN_PASSWORD rotation (now more urgent —
+  admin settings control real money-ish numbers).
