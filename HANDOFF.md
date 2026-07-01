@@ -10,42 +10,60 @@ Heavily used for **Tamil** social-media replies (also English, Tanglish + 30+ la
 ## Stack
 - **Backend:** Node.js + Express (ESM), single file `server.js`.
 - **Frontend:** plain HTML/CSS/JS in `public/` (no framework, no build step).
-- **AI providers:** Gemini (active) and OpenAI (switchable). No database — usage/feedback in
-  JSONL files + browser localStorage.
+- **AI providers:** Gemini (currently active), OpenAI, MiniMax, OpenRouter — switchable via
+  `PROVIDER`. No database for usage/feedback — JSONL files + browser localStorage (Phase 2
+  Supabase exists for accounts only, see below).
 - Run: `npm install` then `npm start` → http://localhost:3000  (dev: `npm run dev`).
+- **Live deployment:** https://ai-reply-assistant-i4mt.onrender.com/ (Render, free tier — see
+  "Deployment" section below before touching hosting).
 
 ## Files
 ```
 ai-response-engine/
 ├── server.js            # all backend logic + endpoints
+├── db.js                # lazy Supabase client (Phase 2 accounts)
+├── auth.js              # Google ID-token verify + signed session cookies (Phase 2)
 ├── package.json
+├── vercel.json           # NOT currently working — see Deployment section
+├── render.yaml           # Blueprint config (unused — live site was made as a manual Web Service)
 ├── .env                 # SECRETS (gitignored) — real keys live here
 ├── .env.example         # documents every env var
 ├── public/
 │   ├── index.html       # main single-page UI
-│   ├── style.css        # light/dark theme (CSS vars), all styling
+│   ├── style.css        # light/dark theme (CSS vars) + lang-picker + RTL styling
 │   ├── app.js           # all frontend logic
+│   ├── i18n.js           # UI-language engine (118 selectable, 10 with real translations)
+│   ├── i18n/             # languages.json, output-languages.json, <code>.json per UI language
+│   ├── lang-picker.js    # reusable searchable language dropdown (UI + output language)
 │   ├── admin.html       # password-gated analytics page
 │   └── admin.js
 ├── data/                # runtime logs (gitignored)
 │   ├── feedback.jsonl   # 👍/👎/copy/save events
 │   └── generations.jsonl# one line per generation (for analytics)
-├── README.md  DESIGN.md  UI-BRIEF.md  HANDOFF.md
+├── supabase/schema.sql   # Phase 2 DB schema (accounts/referrals/pricing — not yet wired to feedback/generations logging)
+├── README.md  DESIGN.md  UI-BRIEF.md  PHASE2-SPEC.md  DEPLOY.md  WORK-LOG.md  HANDOFF.md
 ```
 
 ## Environment (.env)
 ```
-PROVIDER=gemini                 # "gemini" or "openai"
+PROVIDER=gemini                 # "gemini" | "openai" | "minimax" | "openrouter"
 GEMINI_API_KEY=AQ.********       # PAID tier enabled on the Google project
-GEMINI_MODEL=gemini-2.5-flash    # has auto-fallback list in server.js
-OPENAI_API_KEY=sk-...            # currently a placeholder (was overwritten); re-add for gpt-5.5
+GEMINI_MODEL=gemini-3.5-flash    # has auto-fallback list in server.js (GEMINI_FALLBACKS)
+OPENAI_API_KEY=sk-...            # placeholder, not currently used (PROVIDER=gemini is active)
 OPENAI_MODEL=gpt-5.5
-ADMIN_PASSWORD=admin123          # CHANGE THIS — admin analytics login
+MINIMAX_API_KEY=...              # works, but account has insufficient balance as of this write-up
+MINIMAX_MODEL=MiniMax-Text-01
+MINIMAX_BASE_URL=https://api.minimax.io/v1
+OPENROUTER_API_KEY=sk-or-v1-...  # verified working (routes to minimax/minimax-01) — use this to
+OPENROUTER_MODEL=minimax/minimax-01  # switch to MiniMax without needing direct MiniMax balance
+ADMIN_PASSWORD=admin123          # CHANGE THIS — admin analytics login (same value is live on Render!)
 YOUTUBE_API_KEY=                 # optional; empty = YouTube falls back to oEmbed (title+channel only)
-PORT=3000
+PORT=3000                        # do NOT upload this one to Render — it assigns its own PORT
 ```
 Note: dotenv is loaded with `{ override: true }` so .env always wins over stale system env vars.
 The Gemini key starts with `AQ.` and works on the paid tier (free tier daily caps are tiny).
+`gemini-3.5-flash` is real and working (confirmed live) despite not matching this assistant's
+training-time knowledge of Gemini's naming — trust what's observed over prior knowledge here.
 
 ## Backend endpoints (server.js)
 - `POST /api/generate` and `POST /api/generate-replies` (same handler) — body:
@@ -136,10 +154,12 @@ The Gemini key starts with `AQ.` and works on the paid tier (free tier daily cap
 - **Image (vision):** image attached as base64; sent inline to the model. Frontend resizes before upload.
 - **Image paste:** Ctrl+V an image anywhere → auto-attaches (document `paste` listener in app.js).
 - **URL context:** "Fetch Context" → preview card → fills the message box.
-- **Daily free limit:** 10 free replies/day, counted by **replies generated** (not requests),
-  stored in localStorage (`are.usage` = {date, used}), resets at local midnight. Counter shown near
-  Generate; over-limit shows a warning and does NOT call the API; at 0 the button disables + Top Up
-  placeholder ("Top-up feature coming soon."). Count options: 1/3/5/10/20 (default 1).
+- **Daily free limit:** `FREE_LIMIT = 1000` (raised from 10 on request) free replies/day, counted
+  by **replies generated** (not requests), stored in localStorage (`are.usage` = {date, used}),
+  resets at local midnight. Same constant duplicated in `public/app.js` and `public/admin.js` —
+  keep them in sync if changed again. Counter shown near Generate; over-limit shows a warning and
+  does NOT call the API; at 0 the button disables + Top Up placeholder ("Top-up feature coming
+  soon."). Count options: 1/3/5/10/20 (default 1).
 - **UI order:** Paste Message/URL → Output Language → Number of Replies → Perspective → Reply Styles
   → Generate. Reply styles start **deselected**; must pick ≥1 or it asks. Inputs (message/URL/image)
   clear after a successful generate; selections persist.
@@ -181,21 +201,60 @@ architecture, data model, and build order are in **`PHASE2-SPEC.md`** — start 
   decrement (daily allowance first, then `bonus_balance`), and retire the localStorage limit once
   signed in. Then Step 4 events (generate/copy) → Step 5 referral engine → 6 dashboard → 7 admin.
 
+## Deployment (DONE — read before redeploying)
+- **GitHub:** https://github.com/kannammaiglasgow-prog/ai-reply-assistant, branch `main`. Always
+  push here; `.env` is gitignored (never committed).
+- **Live site: Render**, https://ai-reply-assistant-i4mt.onrender.com/ — a "Web Service" (not the
+  `render.yaml` Blueprint path; the user created it manually via New → Web Service → connected the
+  GitHub repo → Build Command `npm install` → Start Command `node server.js` → Free instance → env
+  vars imported directly from the local `.env` file via Render's "Add from .env" button). Verified
+  end-to-end: root page, `/api/config`, a real `/api/generate` call (Gemini), `/i18n/*.json`, and
+  `/admin.html` all return correctly. Render auto-deploys on every push to `main` (confirmed).
+- **Vercel — attempted and NOT working.** The user separately connected this repo to a Vercel
+  project (`ai-reply-assistant-xi.vercel.app`, also a `-6bqqguokn-...` deployment alias). It
+  crashes with `FUNCTION_INVOCATION_FAILED` on every request, including `/`. Two fixes were made
+  and pushed but did NOT resolve it (~3.5 min of polling still showed 500 after both landed):
+  1. `server.js` — guarded `app.listen()` behind `if (!process.env.VERCEL)` and added
+     `export default app;` (Vercel's Node runtime needs a serverless-callable export, not a bound
+     port) — commit `f0a3c7d`.
+  2. `vercel.json` — was mixing the legacy `builds` key with the newer `rewrites` key (an
+     unsupported combination); changed to the correct `builds` + `routes` pairing — commit
+     `a9b5ae8`.
+  **Do not assume Vercel works** — nobody has confirmed a 200 from it since. Diagnosing further
+  needs the actual Vercel **Runtime Logs** (dashboard → the project → Logs tab, or click a failed
+  invocation) — this assistant had no Vercel account/API access to pull them directly. If asked to
+  fix Vercel again, ask the user to paste the exact log/stack-trace text rather than guessing
+  blind a third time.
+- **Standing instruction:** the user said (2026-07-01) that whenever they ask to "deploy" going
+  forward, run an 11-step pipeline automatically (pull → fix → lint → typecheck → test → build →
+  commit → push → deploy → verify → report the live URL) without asking at each step, UNLESS
+  something genuinely needs manual intervention (missing deploy-target auth being the main one
+  seen so far). This project has no lint/typecheck/test/build scripts configured — say so plainly
+  rather than pretending they ran. Full detail saved in this assistant's persistent memory
+  (`feedback_deploy_workflow.md` / `project_deploy_target.md`) — a fresh session should already
+  have this via memory, but it's restated here in case that system isn't consulted.
+- **`ADMIN_PASSWORD` is `admin123` on the live Render site right now** — same weak default as
+  local `.env`. Worth changing in the Render dashboard's Environment tab (auto-redeploys on save).
+
 ## Pending / next tasks (in priority order)
 1. **Off-topic / hallucination fix:** for poems, tributes, quotes the model sometimes invents
    unrelated context (e.g. a poetic tribute produced political party commentary not in the text).
    Tighten the prompt: do NOT add political parties / people / events that are not in the message;
    for a poem/tribute/quote, reply in the same tone.
-2. **Deploy online** (Render / Railway free tier) so it has a permanent URL and doesn't need a local
-   server. Set env vars in the host dashboard; note feedback/generations JSONL won't persist on
-   ephemeral hosts (acceptable for MVP, or move to a DB).
-3. **Settings page** (the nav "Settings" tab is currently a "coming soon" placeholder): UI to switch
+2. **Fix Vercel** (see Deployment section above) if the user wants it working too — needs real
+   runtime logs to diagnose, don't guess blind again.
+3. **Rotate `ADMIN_PASSWORD`** away from the `admin123` default now that the site is public.
+4. **Settings page** (the nav "Settings" tab is currently a "coming soon" placeholder): UI to switch
    provider/model, theme, show API-key connection status (mock of the provided screen-3 design).
-4. **Recent + Saved Replies pages** (nav tabs are placeholders). Save already writes to localStorage
+5. **Recent + Saved Replies pages** (nav tabs are placeholders). Save already writes to localStorage
    key `are.saved`; build the pages to list them. Recent = history of generations (would need to
    store them client-side).
-5. Future: real login, paid top-up/credits + Stripe, server-side usage tracking, more platforms for
-   fetch-context (Facebook/X/TikTok — currently return "paste manually").
+6. **More UI translation files:** 108 of the 118 listed UI languages have no `<code>.json` yet
+   (gracefully fall back to English — see the i18n section above). Add more by copying `en.json`'s
+   key shape.
+7. Future: real login, paid top-up/credits + Stripe, server-side usage tracking, more platforms for
+   fetch-context (Facebook/X/TikTok — currently return "paste manually"), Phase 2 Step 3 (move
+   usage tracking server-side once Supabase creds + Google OAuth are configured).
 
 ## Important constraints (keep these)
 - Do not invent facts; for controversial/political topics keep unverified claims as opinions.

@@ -117,3 +117,84 @@ EDIT  HANDOFF.md              # recorded Phase 2 progress (Steps 1 & 2)
 Move usage tracking server-side: `/api/generate*` reads the session, checks & decrements the DB
 balance (daily allowance first, then `bonus_balance`), and retires the localStorage limit once
 signed in. Then Step 4 (events) → Step 5 (referral engine) → Step 6 (dashboard) → Step 7 (admin).
+
+---
+
+# Session continuation (same day) — providers, 20 styles, 100+ languages, real deployment
+
+Everything below happened after the Phase 2 auth work above, in the same overall session.
+**`HANDOFF.md` is now the authoritative, kept-current doc — read it first.** This section is a
+narrative log of what happened and why, for context a plain diff won't give you.
+
+## 4. Multi-provider AI
+Added **MiniMax** and **OpenRouter** as providers alongside Gemini/OpenAI (`callOpenAiCompatible()`
+helper in server.js, shared retry/fallback logic). Debugged two real integration issues live:
+OpenRouter pricing against a model's full `max_tokens` by default (fixed with a `max_tokens: 4000`
+cap) and MiniMax returning JSON wrapped in a ```json fence when `response_format` isn't honoured
+(fixed with `tryParseJson()`'s fence-stripping fallback). Also discovered `gemini-3.5-flash` is a
+real, working model despite predating this assistant's training knowledge — switched to it.
+
+## 5. Reply styles: 10 → 20
+User supplied an exact list of 20 named styles with emoji; replaced the original 10 entirely
+(not additive) — see `STYLES`/`STYLE_HINTS` in server.js, checkboxes in index.html, `STYLE_CLASS`
+in app.js, badge colours in style.css. Edgier styles (Angry, Sarcastic, Savage, Troll, Villain,
+Punch Dialogue) got explicit safety guardrails added to the system prompt's Hard Rules.
+
+## 6. Multi-language UI (10 languages) → scaled to 100+
+First pass: built a from-scratch i18n system (`i18n.js`, `<code>.json` files, `data-i18n`
+attributes) for 10 UI languages, plus updated the AI prompt to explicitly restate
+User Question/Style/Language/Instruction (layered on top of, not replacing, the existing prompt
+engineering). User then asked for **100+ languages on both sides, not capped at 20-25** — required
+rebuilding the language pickers as a custom searchable dropdown (`lang-picker.js`) rather than a
+plain `<select>`, expanding the output-language list to 119 names (`server.js` `LANGUAGES` +
+`output-languages.json`, kept in sync), expanding the UI-language manifest to 118 entries, and
+fixing `i18n.js`'s fallback logic (it used to silently no-op on a missing language file instead of
+actually falling back to English — now it does, per the user's explicit spec). Verified via
+accessibility-tree snapshots (screenshots kept timing out on the large scrollable panel — a preview
+-tool limitation, not a bug) and a real `/api/generate` call in Icelandic (a language that only
+exists in the new 100+ list) to confirm the full pipeline, not just the picker UI.
+
+## 7. Real online deployment — Render (Vercel attempted, not working)
+User asked to set a **standing workflow** for future "deploy" requests (11 steps: pull → fix →
+lint → typecheck → test → build → commit → push → deploy → verify → report URL) — saved to this
+assistant's persistent memory. Then asked to deploy to GitHub + Vercel specifically.
+- GitHub: pushed cleanly (no surprises, repo/remote already existed from the Phase 2 work).
+- Vercel: no CLI/account access on this machine to do it directly. The user separately connected
+  the repo to a Vercel project themselves and hit `FUNCTION_INVOCATION_FAILED` on every route.
+  Diagnosed (without log access, by reasoning about the architecture) that `app.listen()` being
+  called unconditionally at module scope crashes Vercel's serverless runtime, and fixed it
+  (guarded behind `process.env.VERCEL`, exported `app` as default). Also found and fixed a
+  `vercel.json` bug (mixed the legacy `builds` key with the newer `rewrites` key — incompatible;
+  should be `builds` + `routes`). **Neither fix actually resolved it** — polled the live URL for
+  ~3.5 minutes after both landed and it was still 500ing. Vercel remains broken; needs real runtime
+  logs from the dashboard to diagnose further, which nobody has pulled yet.
+- Given Vercel was stuck, pivoted (with the user's confirmation) to **Render** instead — walked the
+  user through Render's UI live (screenshots back and forth) since it doesn't match the `render.yaml`
+  Blueprint flow this session had prepared earlier (that specific "New → Blueprint" button wasn't
+  present in this Render account's UI version — used "New → Web Service" instead, manually setting
+  Build Command `npm install` / Start Command `node server.js`, and importing all of `.env` directly
+  via Render's "Add from .env" button rather than retyping keys).
+- **Live and verified:** https://ai-reply-assistant-i4mt.onrender.com/ — root page, `/api/config`, a
+  real Gemini generate call, `/i18n/*.json`, and `/admin.html` all confirmed working by fetching them
+  directly. Admin password on the live site is the same `admin123` default as local `.env` — flagged
+  to the user as worth rotating since the site is now public.
+
+## Files added/changed in this continuation (on top of the Phase 2 list above)
+```
+EDIT  server.js                 # MiniMax/OpenRouter providers, 20 styles, 119 output languages,
+                                 #   explicit prompt summary block, Vercel app.listen() guard + export
+NEW   public/i18n.js             # UI-language engine (118 languages, 10 with real translations)
+NEW   public/i18n/*.json         # languages.json, output-languages.json, en/ta/hi/te/ml/si/zh/ar/fr/es.json
+NEW   public/lang-picker.js      # reusable searchable language dropdown (UI + output pickers)
+NEW   vercel.json                # present but NOT working — see HANDOFF.md Deployment section
+EDIT  public/index.html          # 20 style checkboxes, both language pickers, data-i18n everywhere
+EDIT  public/app.js              # i18n.t() everywhere, both picker init, FREE_LIMIT 10 → 1000
+EDIT  public/admin.js            # FREE_LIMIT 10 → 1000
+EDIT  public/style.css           # 15 new style badge colours, RTL support, lang-picker styling
+EDIT  HANDOFF.md                 # kept current throughout — read this first, not this file
+```
+
+## What a fresh session should do first
+Read `HANDOFF.md` top to bottom (it's kept current), then check this assistant's persistent memory
+for `feedback_deploy_workflow.md` and `project_deploy_target.md` before doing anything with
+deployment. Don't re-attempt Vercel without first getting real runtime logs from the user.
