@@ -504,6 +504,124 @@ textarea:focus, select:focus {
   z-index: 50;
 }
 
+/* ===== Token badge (topbar) ===== */
+.token-badge[hidden] { display: none; } /* class display would otherwise beat the hidden attr */
+.token-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-tint); color: var(--accent);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 5px 12px; font-size: 0.85rem; font-weight: 600;
+  cursor: default;
+}
+.token-badge .token-icon { font-size: 0.95rem; }
+
+/* ===== Modals (login / upgrade) ===== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(2px);
+  padding: 20px;
+}
+.modal-overlay.hidden { display: none; }
+.modal-card {
+  position: relative; width: 100%; max-width: 380px;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); padding: 28px 24px; text-align: center;
+}
+.modal-card h3 { margin: 8px 0 6px; font-size: 1.15rem; }
+.modal-card .muted { margin: 0 0 16px; }
+.modal-icon { font-size: 2rem; line-height: 1; }
+.modal-close {
+  position: absolute; top: 10px; right: 12px;
+  background: none; border: none; color: var(--muted);
+  font-size: 1.1rem; cursor: pointer; line-height: 1; padding: 4px;
+}
+.modal-close:hover { color: var(--text); }
+.modal-gsi { display: flex; justify-content: center; margin: 6px 0 4px; min-height: 44px; }
+.modal-actions { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 6px; }
+.modal-fineprint { font-size: 0.78rem; margin-top: 10px !important; }
+
+/* ===== Membership plans modal ===== */
+.modal-card-wide { max-width: 560px; }
+.plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 10px; margin: 12px 0 6px; }
+.plan-card {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 10px;
+}
+.plan-card h4 { margin: 0; font-size: 0.95rem; }
+.plan-price { font-size: 1.2rem; font-weight: 700; }
+.plan-price .muted { font-size: 0.72rem; font-weight: 400; }
+.plan-tokens { font-size: 0.72rem; margin: 0; text-align: center; }
+.plan-choose { width: 100%; margin-top: 8px; padding: 8px; font-size: 0.8rem; }
+.plan-choose:disabled { opacity: 0.55; cursor: default; }
+
+/* ===== User dashboard modal ===== */
+.dashboard-card { text-align: left; }
+.user-chip-main {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: none; padding: 0; cursor: pointer; font: inherit; color: inherit;
+}
+.dash-profile { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.dash-avatar { width: 46px; height: 46px; border-radius: 50%; }
+.dash-who h3 { margin: 0; font-size: 1.05rem; }
+.dash-who .muted { margin: 2px 0 0; font-size: 0.8rem; }
+.dash-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.dash-tile {
+  display: flex; flex-direction: column; gap: 2px; align-items: center; text-align: center;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 6px;
+}
+.dash-tile-num { font-size: 1.1rem; font-weight: 700; }
+.dash-tile .muted { font-size: 0.68rem; }
+.dash-actions { margin: 4px 0 10px; }
+.dash-actions .primary-btn { margin-top: 0; padding: 10px; font-size: 0.9rem; }
+.dash-history-title { margin: 8px 0 6px; font-size: 0.85rem; }
+.dash-history { max-height: 180px; overflow-y: auto; border-top: 1px solid var(--border); }
+.dash-history-row {
+  display: flex; align-items: center; gap: 10px; justify-content: space-between;
+  padding: 7px 2px; border-bottom: 1px solid var(--border); font-size: 0.78rem;
+}
+.dash-h-when { flex-shrink: 0; }
+.dash-h-what { flex: 1; text-align: left; }
+.dash-h-cost { font-weight: 600; flex-shrink: 0; }
+@media (max-width: 480px) {
+  .dash-tiles { grid-template-columns: 1fr 1fr; }
+  .dash-history-row { flex-wrap: wrap; }
+}
+
+/* ===== Referral modal ===== */
+.referral-link-row { display: flex; gap: 8px; margin: 6px 0 14px; }
+.referral-link-row input {
+  flex: 1; min-width: 0;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 10px; font: inherit; font-size: 0.82rem;
+}
+.referral-link-row .primary-btn { width: auto; margin-top: 0; padding: 9px 14px; font-size: 0.85rem; white-space: nowrap; }
+.referral-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 4px; }
+.referral-stat { display: flex; flex-direction: column; gap: 2px; align-items: center; padding: 8px 4px; background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.referral-stat-num { font-size: 1.15rem; font-weight: 700; }
+.referral-stat .muted { font-size: 0.68rem; text-align: center; }
+@media (max-width: 420px) { .referral-stats { grid-template-columns: repeat(2, 1fr); } }
+
+/* ===== Admin settings panel ===== */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+@media (max-width: 640px) { .settings-grid { grid-template-columns: 1fr; } }
+.setting-field { display: flex; flex-direction: column; gap: 5px; }
+.setting-field label { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.setting-field .setting-help { font-size: 0.72rem; color: var(--muted); }
+.setting-field input, .setting-field select {
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 10px; font: inherit;
+}
+.setting-field input:focus, .setting-field select:focus {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint);
+}
+.settings-foot { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
+
 /* ===== Admin analytics ===== */
 .gate { max-width: 420px; margin: 60px auto; padding: 0 16px; }
 .gate-card { padding: 30px; text-align: center; }

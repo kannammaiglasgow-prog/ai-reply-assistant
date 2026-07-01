@@ -41,6 +41,29 @@
       <div class="muted" id="activeProvider"></div>
     </div>
 
+    <!-- Admin settings (token / guest / referral / membership) -->
+    <section class="panel dash-panel" id="settingsPanel">
+      <h3>⚙️ Settings <small class="muted">— tokens, guest trial, referral, membership</small></h3>
+      <p class="muted" id="settingsState">Loading settings…</p>
+      <form id="settingsForm" class="settings-grid hidden"></form>
+      <div class="settings-foot hidden" id="settingsFoot">
+        <button type="button" id="saveSettings" class="primary-btn">Save settings</button>
+        <span id="settingsMsg" class="muted"></span>
+      </div>
+    </section>
+
+    <!-- Membership plans editor -->
+    <section class="panel dash-panel" id="plansPanel">
+      <h3>⭐ Membership plans <small class="muted">— prices &amp; monthly token limits</small></h3>
+      <p class="muted" id="plansState">Loading plans…</p>
+      <div id="plansTable" class="table-wrap hidden"></div>
+      <div class="settings-foot hidden" id="plansFoot">
+        <button type="button" id="addPlanBtn" class="ghost-btn">+ Add plan</button>
+        <button type="button" id="savePlansBtn" class="primary-btn" style="width:auto;margin-top:0;padding:10px 18px;">Save plans</button>
+        <span id="plansMsg" class="muted"></span>
+      </div>
+    </section>
+
     <section class="stat-grid" id="statGrid"></section>
 
     <section class="panel dash-panel">

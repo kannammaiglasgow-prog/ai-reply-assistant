@@ -126,7 +126,234 @@ function updateUsageUI() {
   }
 }
 
-topupBtn.addEventListener('click', () => toast(i18n.t('generate.topUpComingSoon')));
+// ===== Token system (Phase A) =====
+// When the server has Google login + a database, it enforces tokens/guest limits server-side.
+// Until then, appConfig.tokenSystem is false and everything above (localStorage limit) is used.
+let appConfig = {
+  tokenSystem: false,
+  guestFreeGenerations: 1,
+  guestTrialEnabled: true,
+  tokenCostPerGeneration: 1,
+  referralEnabled: false,
+};
+let guestRemaining = null; // token mode, signed-out: free tries left (null = not yet known)
+
+// One entry point that renders whichever counter applies to the current mode.
+function refreshUsageUI() {
+  if (appConfig.tokenSystem) updateTokenUI();
+  else updateUsageUI();
+}
+
+function updateTokenUI() {
+  const badge = $('tokenBadge');
+  generateBtn.disabled = false;
+  generateBtn.title = '';
+  $('referralBtn').hidden = !(currentUser && appConfig.referralEnabled);
+  if (currentUser) {
+    const tokens = currentUser.tokens ?? currentUser.bonusBalance ?? 0;
+    badge.hidden = false;
+    $('tokenBalance').textContent = tokens;
+    usageCounter.textContent = i18n.t('generate.tokenBalance', { n: tokens });
+    topupBtn.classList.remove('hidden'); // acts as the "Upgrade" button when signed in
+    if (tokens <= 0) setStatus(i18n.t('generate.outOfTokens'), true);
+  } else {
+    badge.hidden = true;
+    const left = guestRemaining == null ? appConfig.guestFreeGenerations : guestRemaining;
+    usageCounter.textContent = appConfig.guestTrialEnabled
+      ? i18n.t('generate.guestLeft', { left })
+      : i18n.t('generate.loginToStart');
+    topupBtn.classList.add('hidden');
+  }
+}
+
+// ---- Modals ----
+function openLoginModal(message) {
+  if (message) $('loginModalMsg').textContent = message;
+  $('loginModal').classList.remove('hidden');
+}
+function closeLoginModal() { $('loginModal').classList.add('hidden'); }
+function openUpgradeModal() { $('upgradeModal').classList.remove('hidden'); }
+function closeUpgradeModal() { $('upgradeModal').classList.add('hidden'); }
+
+$('loginModalClose').addEventListener('click', closeLoginModal);
+$('upgradeModalClose').addEventListener('click', closeUpgradeModal);
+$('upgradeClose2').addEventListener('click', closeUpgradeModal);
+$('upgradeBtn').addEventListener('click', () => { closeUpgradeModal(); openPlansModal(); });
+// Click the dim backdrop (outside the card) to dismiss.
+$('loginModal').addEventListener('click', (e) => { if (e.target === $('loginModal')) closeLoginModal(); });
+$('upgradeModal').addEventListener('click', (e) => { if (e.target === $('upgradeModal')) closeUpgradeModal(); });
+
+topupBtn.addEventListener('click', () => {
+  if (appConfig.tokenSystem) openUpgradeModal();
+  else toast(i18n.t('generate.topUpComingSoon'));
+});
+
+// ---- Referral (Refer & Earn) modal ----
+$('referralModalClose').addEventListener('click', () => $('referralModal').classList.add('hidden'));
+$('referralModal').addEventListener('click', (e) => {
+  if (e.target === $('referralModal')) $('referralModal').classList.add('hidden');
+});
+
+async function openReferralModal() {
+  $('referralModal').classList.remove('hidden');
+  $('referralLink').value = '…';
+  try {
+    const r = await fetch('/api/referrals');
+    const d = await r.json();
+    if (!r.ok) {
+      if (d.needsLogin) { $('referralModal').classList.add('hidden'); openLoginModal(d.error); }
+      else toast(d.error || i18n.t('errors.somethingWrong'));
+      return;
+    }
+    $('referralLink').value = d.link || '';
+    $('referralRewardLine').textContent = i18n.t('referral.rewardLine', { n: d.reward });
+    $('refInvited').textContent = d.invited;
+    $('refPending').textContent = d.pending;
+    $('refRewarded').textContent = d.rewarded;
+    $('refEarned').textContent = d.tokensEarned;
+  } catch {
+    toast(i18n.t('toast.networkError'));
+  }
+}
+$('referralBtn').addEventListener('click', openReferralModal);
+
+$('copyReferralBtn').addEventListener('click', async () => {
+  const link = $('referralLink').value;
+  if (!link || link === '…') return;
+  await copyText(link);
+  toast(i18n.t('referral.copied'));
+});
+
+// ---- Membership plans modal (Phase C) ----
+$('plansModalClose').addEventListener('click', () => $('plansModal').classList.add('hidden'));
+$('plansModal').addEventListener('click', (e) => {
+  if (e.target === $('plansModal')) $('plansModal').classList.add('hidden');
+});
+
+async function openPlansModal() {
+  $('plansModal').classList.remove('hidden');
+  const grid = $('plansGrid');
+  grid.innerHTML = `<p class="muted">${i18n.t('plans.loading')}</p>`;
+  try {
+    const r = await fetch('/api/plans');
+    const d = await r.json();
+    if (!r.ok || !d.enabled || !d.plans.length) {
+      grid.innerHTML = `<p class="muted">${i18n.t('plans.unavailable')}</p>`;
+      return;
+    }
+    grid.innerHTML = '';
+    d.plans.forEach((p) => {
+      const card = document.createElement('div');
+      card.className = 'plan-card';
+      const tokensLine = p.monthlyTokens == null
+        ? i18n.t('plans.unlimited')
+        : i18n.t('plans.tokensPerMonth', { n: p.monthlyTokens });
+      card.innerHTML = `
+        <h4>${p.name}</h4>
+        <div class="plan-price">${p.monthlyPrice === 0 ? i18n.t('plans.free') : '$' + p.monthlyPrice.toFixed(2)}<span class="muted">${p.monthlyPrice === 0 ? '' : i18n.t('plans.perMonth')}</span></div>
+        <p class="muted plan-tokens">${tokensLine}</p>`;
+      const btn = document.createElement('button');
+      btn.className = 'primary-btn plan-choose';
+      btn.textContent = p.monthlyPrice === 0 ? i18n.t('plans.currentFree') : i18n.t('plans.choose');
+      btn.disabled = p.monthlyPrice === 0;
+      btn.addEventListener('click', () => choosePlan(p, btn));
+      card.appendChild(btn);
+      grid.appendChild(card);
+    });
+  } catch {
+    grid.innerHTML = `<p class="muted">${i18n.t('toast.networkError')}</p>`;
+  }
+}
+
+async function choosePlan(plan, btn) {
+  if (!currentUser) {
+    $('plansModal').classList.add('hidden');
+    openLoginModal(i18n.t('login.message'));
+    return;
+  }
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ planId: plan.id }),
+    });
+    const d = await r.json();
+    if (d.needsLogin) { $('plansModal').classList.add('hidden'); openLoginModal(d.error); return; }
+    // Until Stripe is wired, the server answers with a clear "coming soon".
+    toast(d.error || i18n.t('plans.paymentSoon'), 3600);
+  } catch {
+    toast(i18n.t('toast.networkError'));
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ---- User dashboard modal (Phase C) ----
+$('dashboardModalClose').addEventListener('click', () => $('dashboardModal').classList.add('hidden'));
+$('dashboardModal').addEventListener('click', (e) => {
+  if (e.target === $('dashboardModal')) $('dashboardModal').classList.add('hidden');
+});
+$('dashboardBtn').addEventListener('click', () => { if (appConfig.tokenSystem) openDashboard(); });
+$('dashUpgradeBtn').addEventListener('click', () => {
+  $('dashboardModal').classList.add('hidden');
+  openPlansModal();
+});
+$('dashCopyRefBtn').addEventListener('click', async () => {
+  const link = $('dashRefLink').value;
+  if (!link || link === '…') return;
+  await copyText(link);
+  toast(i18n.t('referral.copied'));
+});
+
+async function openDashboard() {
+  $('dashboardModal').classList.remove('hidden');
+  try {
+    const r = await fetch('/api/me/summary');
+    const d = await r.json();
+    if (!r.ok) {
+      $('dashboardModal').classList.add('hidden');
+      if (d.needsLogin) openLoginModal(d.error);
+      else toast(d.error || i18n.t('errors.somethingWrong'));
+      return;
+    }
+    if (typeof d.tokens === 'number' && currentUser) { currentUser.tokens = d.tokens; refreshUsageUI(); }
+    const av = $('dashAvatar');
+    if (d.user.picture) { av.src = d.user.picture; av.style.display = ''; } else av.style.display = 'none';
+    $('dashName').textContent = d.user.name || d.user.email;
+    $('dashEmail').textContent = d.user.email;
+    $('dashTokens').textContent = d.tokens;
+    $('dashPlan').textContent = d.plan.name;
+    $('dashPayStatus').textContent = d.paymentStatus
+      ? `${i18n.t('dashboard.currentPlan')} · ${d.paymentStatus}`
+      : i18n.t('dashboard.currentPlan');
+    $('dashRefEarned').textContent = d.referral.tokensEarned;
+    $('dashRefLink').value = d.referral.link || '';
+    renderDashHistory(d.usage || []);
+  } catch {
+    $('dashboardModal').classList.add('hidden');
+    toast(i18n.t('toast.networkError'));
+  }
+}
+
+function renderDashHistory(rows) {
+  const wrap = $('dashHistory');
+  wrap.innerHTML = '';
+  if (!rows.length) {
+    wrap.innerHTML = `<p class="muted">${i18n.t('dashboard.noUsage')}</p>`;
+    return;
+  }
+  rows.forEach((u) => {
+    const row = document.createElement('div');
+    row.className = 'dash-history-row';
+    const when = new Date(u.created_at).toLocaleString();
+    row.innerHTML = `
+      <span class="dash-h-when muted">${when}</span>
+      <span class="dash-h-what">${u.action === 'regenerate' ? '↻' : '⚡'} ${u.replies} ${u.language || ''}</span>
+      <span class="dash-h-cost">−${u.tokens_spent} 🎟️</span>`;
+    wrap.appendChild(row);
+  });
+}
 
 // ===== Toast =====
 let toastTimer;
@@ -506,11 +733,19 @@ form.addEventListener('submit', async (e) => {
   if (!p.message && !p.image) return setStatus(i18n.t('errors.pasteMessageOrImage'), true);
   if (p.styles.length === 0) return setStatus(i18n.t('errors.selectStyle'), true);
 
-  // daily free-limit check (do NOT call the API if it would exceed today's free replies)
-  const left = remaining();
-  if (left <= 0) { updateUsageUI(); return; }
-  if (p.count > left) {
-    return setStatus(i18n.t(left === 1 ? 'errors.onlyLeftOne' : 'errors.onlyLeftMany', { left }), true);
+  if (!appConfig.tokenSystem) {
+    // Legacy (Phase-1) localStorage daily free-limit check.
+    const left = remaining();
+    if (left <= 0) { updateUsageUI(); return; }
+    if (p.count > left) {
+      return setStatus(i18n.t(left === 1 ? 'errors.onlyLeftOne' : 'errors.onlyLeftMany', { left }), true);
+    }
+  } else if (!currentUser) {
+    // Token mode, guest: if no free tries remain, ask to log in before spending an API call.
+    const left = guestRemaining == null ? appConfig.guestFreeGenerations : guestRemaining;
+    if (!appConfig.guestTrialEnabled || left < p.count) {
+      return openLoginModal(i18n.t('login.message'));
+    }
   }
 
   lastParams = { message: p.message, image: p.image, perspective: p.perspective, language: p.language };
@@ -525,18 +760,33 @@ form.addEventListener('submit', async (e) => {
       body: JSON.stringify(p),
     });
     const data = await res.json();
-    if (!res.ok) { setStatus(data.error || i18n.t('errors.somethingWrong'), true); resultsEl.innerHTML = ''; resultsTitle.textContent = i18n.t('results.titleTemplate', { count: 0 }); return; }
+    if (!res.ok) {
+      resultsEl.innerHTML = '';
+      resultsTitle.textContent = i18n.t('results.titleTemplate', { count: 0 });
+      if (data.needsLogin) { openLoginModal(data.error); setStatus(''); return; }
+      if (data.needsTokens) {
+        if (typeof data.tokenBalance === 'number' && currentUser) currentUser.tokens = data.tokenBalance;
+        openUpgradeModal(); setStatus(''); refreshUsageUI(); return;
+      }
+      setStatus(data.error || i18n.t('errors.somethingWrong'), true);
+      return;
+    }
 
     replies = data.replies.map((r) => ({ ...r, id: ++idSeq, seq: idSeq }));
     renderResults();
-    addUsed(data.replies.length); // count actual replies generated toward the daily limit
+    if (appConfig.tokenSystem) {
+      if (typeof data.tokenBalance === 'number' && currentUser) currentUser.tokens = data.tokenBalance;
+      if (typeof data.guestRemaining === 'number') guestRemaining = data.guestRemaining;
+    } else {
+      addUsed(data.replies.length); // count actual replies generated toward the daily limit
+    }
     clearInputs(); // clear the message / URL / image after generating
-    if (remaining() > 0) setStatus('');
+    setStatus('');
   } catch {
     setStatus(i18n.t('errors.networkErrorGenerate'), true);
     resultsEl.innerHTML = '';
   } finally {
-    updateUsageUI();
+    refreshUsageUI();
   }
 });
 
@@ -544,7 +794,11 @@ form.addEventListener('submit', async (e) => {
 async function regenerate(id, btn) {
   const idx = replies.findIndex((r) => r.id === id);
   if (idx === -1 || !lastParams) return;
-  if (remaining() < 1) { toast(i18n.t('toast.dailyLimitReached')); return; }
+  if (!appConfig.tokenSystem && remaining() < 1) { toast(i18n.t('toast.dailyLimitReached')); return; }
+  if (appConfig.tokenSystem && !currentUser) {
+    const left = guestRemaining == null ? appConfig.guestFreeGenerations : guestRemaining;
+    if (!appConfig.guestTrialEnabled || left < 1) { openLoginModal(i18n.t('login.message')); return; }
+  }
   const original = btn.textContent;
   btn.textContent = i18n.t('card.regenerating');
   btn.disabled = true;
@@ -555,10 +809,21 @@ async function regenerate(id, btn) {
       body: JSON.stringify({ ...lastParams, style: replies[idx].style }),
     });
     const data = await res.json();
-    if (!res.ok) { toast(data.error || i18n.t('toast.regenerateFailed')); return; }
+    if (!res.ok) {
+      if (data.needsLogin) { openLoginModal(data.error); return; }
+      if (data.needsTokens) { openUpgradeModal(); return; }
+      toast(data.error || i18n.t('toast.regenerateFailed'));
+      return;
+    }
     replies[idx] = { ...replies[idx], text: data.reply.text, perspective: data.reply.perspective };
     renderResults();
-    addUsed(1); // a regenerated reply counts toward the daily limit
+    if (appConfig.tokenSystem) {
+      if (typeof data.tokenBalance === 'number' && currentUser) currentUser.tokens = data.tokenBalance;
+      if (typeof data.guestRemaining === 'number') guestRemaining = data.guestRemaining;
+      refreshUsageUI();
+    } else {
+      addUsed(1); // a regenerated reply counts toward the daily limit
+    }
   } catch {
     toast(i18n.t('toast.networkError'));
   } finally {
@@ -567,8 +832,8 @@ async function regenerate(id, btn) {
   }
 }
 
-// initialise the daily usage counter on load
-updateUsageUI();
+// initialise the usage counter on load
+refreshUsageUI();
 
 // ===== Bulk actions =====
 $('copyAll').addEventListener('click', async () => {
@@ -621,6 +886,8 @@ function showSignedIn(user) {
   const av = $('userAvatar');
   if (user.picture) { av.src = user.picture; av.style.display = ''; }
   else av.style.display = 'none';
+  closeLoginModal();
+  refreshUsageUI();
 }
 
 function showSignedOut() {
@@ -629,6 +896,7 @@ function showSignedOut() {
   const slot = $('googleSignin');
   slot.hidden = false;
   slot.style.display = '';
+  refreshUsageUI();
 }
 
 async function handleGoogleCredential(response) {
@@ -682,25 +950,48 @@ async function initAuth() {
     return;
   }
 
+  // Token system is live — adopt the server's admin-configured guest allowance.
+  appConfig = {
+    tokenSystem: !!cfg.tokenSystem,
+    guestFreeGenerations: cfg.guestFreeGenerations ?? 1,
+    guestTrialEnabled: cfg.guestTrialEnabled ?? true,
+    tokenCostPerGeneration: cfg.tokenCostPerGeneration ?? 1,
+    referralEnabled: !!cfg.referralEnabled,
+  };
+
   // Restore an existing session first.
   try {
     const me = await (await fetch('/api/auth/me')).json();
     if (me.user) showSignedIn(me.user);
   } catch {}
+  refreshUsageUI();
 
   whenGisReady(() => {
     google.accounts.id.initialize({
       client_id: cfg.googleClientId,
       callback: handleGoogleCredential,
     });
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
     if (!currentUser) {
       showSignedOut();
       google.accounts.id.renderButton($('googleSignin'), {
-        theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
+        theme: dark ? 'filled_black' : 'outline',
         size: 'medium',
         type: 'standard',
         shape: 'pill',
         text: 'signin_with',
+      });
+    }
+    // Also render a (larger) button inside the login modal shown at the guest limit.
+    const modalSlot = $('loginModalGoogle');
+    if (modalSlot) {
+      modalSlot.innerHTML = '';
+      google.accounts.id.renderButton(modalSlot, {
+        theme: dark ? 'filled_black' : 'outline',
+        size: 'large',
+        type: 'standard',
+        shape: 'pill',
+        text: 'continue_with',
       });
     }
   });
@@ -713,7 +1004,7 @@ initAuth();
 // app.js writes directly: usage counter, char counter, attach-image button, and any already-
 // rendered result cards / style filter (renderResults() rebuilds them with translated labels).
 i18n.onChange(() => {
-  updateUsageUI();
+  refreshUsageUI();
   charCount.textContent = i18n.t('step1.charCount', { count: messageEl.value.length, max: 5000 });
   attachBtn.textContent = attachedImage ? i18n.t('step1.changeImage') : i18n.t('step1.attachImage');
   if (!resultsWrap.classList.contains('hidden')) renderResults();

@@ -29,13 +29,24 @@
 
       <button id="themeToggle" class="icon-btn" data-i18n-title="nav.themeToggleTitle" title="Toggle light / dark" aria-label="Toggle theme">☀️</button>
 
+      <!-- Token balance (shown when the token system is active & the user is signed in) -->
+      <button id="tokenBadge" class="token-badge" hidden title="Your token balance">
+        <span class="token-icon" aria-hidden="true">🎟️</span>
+        <span id="tokenBalance">0</span>
+      </button>
+
+      <!-- Refer & Earn (signed-in users, when the referral system is enabled) -->
+      <button id="referralBtn" class="icon-btn" hidden data-i18n-title="referral.buttonTitle" title="Refer & earn tokens" aria-label="Refer and earn">🎁</button>
+
       <!-- Google Sign-In button renders here when signed out (Phase 2) -->
       <div id="googleSignin" class="gsi-slot"></div>
 
-      <!-- Signed-in user chip (Phase 2) -->
+      <!-- Signed-in user chip (Phase 2). Click name/avatar → dashboard (Phase C). -->
       <div id="userChip" class="user-chip" hidden>
-        <img id="userAvatar" class="user-avatar" alt="" />
-        <span id="userName" class="user-name"></span>
+        <button id="dashboardBtn" class="user-chip-main" data-i18n-title="dashboard.openTitle" title="Open your dashboard">
+          <img id="userAvatar" class="user-avatar" alt="" />
+          <span id="userName" class="user-name"></span>
+        </button>
         <button id="signOutBtn" class="link-btn" data-i18n="nav.signOut" title="Sign out">Sign out</button>
       </div>
 
@@ -224,6 +235,104 @@
   <footer class="site-footer">
     <p class="muted" data-i18n="footer.text">AI-generated suggestions — review before posting. The engine is instructed not to invent facts; always verify claims yourself.</p>
   </footer>
+
+  <!-- Login modal (shown when a guest hits the free-trial limit) -->
+  <div id="loginModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+    <div class="modal-card">
+      <button class="modal-close" id="loginModalClose" aria-label="Close">✕</button>
+      <div class="modal-icon">🔒</div>
+      <h3 id="loginModalTitle" data-i18n="login.title">Please login to continue</h3>
+      <p class="muted" id="loginModalMsg" data-i18n="login.message">Please login with Google to continue.</p>
+      <div id="loginModalGoogle" class="modal-gsi"></div>
+      <p class="muted modal-fineprint" data-i18n="login.starterHint">You'll get free starter tokens after signing in with Google.</p>
+    </div>
+  </div>
+
+  <!-- Upgrade / out-of-tokens modal -->
+  <div id="upgradeModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="upgradeModalTitle">
+    <div class="modal-card">
+      <button class="modal-close" id="upgradeModalClose" aria-label="Close">✕</button>
+      <div class="modal-icon">🎟️</div>
+      <h3 id="upgradeModalTitle" data-i18n="upgrade.title">You're out of tokens</h3>
+      <p class="muted" data-i18n="upgrade.message">Upgrade your plan or top up to keep generating replies.</p>
+      <div class="modal-actions">
+        <button type="button" id="upgradeBtn" class="primary-btn" data-i18n="upgrade.cta">Upgrade / Buy tokens</button>
+        <button type="button" id="upgradeClose2" class="ghost-btn" data-i18n="upgrade.later">Maybe later</button>
+      </div>
+      <p class="muted modal-fineprint" data-i18n="upgrade.soon">Membership &amp; top-up checkout is coming soon.</p>
+    </div>
+  </div>
+
+  <!-- Referral (Refer & Earn) modal -->
+  <div id="referralModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="referralModalTitle">
+    <div class="modal-card">
+      <button class="modal-close" id="referralModalClose" aria-label="Close">✕</button>
+      <div class="modal-icon">🎁</div>
+      <h3 id="referralModalTitle" data-i18n="referral.title">Refer &amp; Earn</h3>
+      <!-- No data-i18n here: JS sets this line (with the live reward amount) on open. -->
+      <p class="muted" id="referralRewardLine">Invite friends — you earn tokens when they join.</p>
+      <div class="referral-link-row">
+        <input id="referralLink" type="text" readonly />
+        <button type="button" id="copyReferralBtn" class="primary-btn" data-i18n="referral.copy">⧉ Copy</button>
+      </div>
+      <div class="referral-stats" id="referralStats">
+        <div class="referral-stat"><span class="referral-stat-num" id="refInvited">0</span><span class="muted" data-i18n="referral.invited">Invited</span></div>
+        <div class="referral-stat"><span class="referral-stat-num" id="refPending">0</span><span class="muted" data-i18n="referral.pending">Pending</span></div>
+        <div class="referral-stat"><span class="referral-stat-num" id="refRewarded">0</span><span class="muted" data-i18n="referral.rewarded">Rewarded</span></div>
+        <div class="referral-stat"><span class="referral-stat-num" id="refEarned">0</span><span class="muted" data-i18n="referral.earned">Tokens earned</span></div>
+      </div>
+      <p class="muted modal-fineprint" data-i18n="referral.fineprint">Rewards are granted after your friend signs in with Google (per the current referral rules).</p>
+    </div>
+  </div>
+
+  <!-- Membership plans modal -->
+  <div id="plansModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="plansModalTitle">
+    <div class="modal-card modal-card-wide">
+      <button class="modal-close" id="plansModalClose" aria-label="Close">✕</button>
+      <div class="modal-icon">⭐</div>
+      <h3 id="plansModalTitle" data-i18n="plans.title">Choose your plan</h3>
+      <p class="muted" data-i18n="plans.subtitle">More tokens every month. Cancel anytime.</p>
+      <div id="plansGrid" class="plans-grid"><p class="muted" data-i18n="plans.loading">Loading plans…</p></div>
+      <p class="muted modal-fineprint" id="plansNote" data-i18n="plans.paymentSoon">Secure checkout is coming soon.</p>
+    </div>
+  </div>
+
+  <!-- User dashboard modal -->
+  <div id="dashboardModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="dashboardTitle">
+    <div class="modal-card modal-card-wide dashboard-card">
+      <button class="modal-close" id="dashboardModalClose" aria-label="Close">✕</button>
+      <div class="dash-profile">
+        <img id="dashAvatar" class="dash-avatar" alt="" />
+        <div class="dash-who">
+          <h3 id="dashName">—</h3>
+          <p class="muted" id="dashEmail">—</p>
+        </div>
+      </div>
+      <div class="dash-tiles">
+        <div class="dash-tile">
+          <span class="dash-tile-num" id="dashTokens">0</span>
+          <span class="muted" data-i18n="dashboard.tokens">Token balance</span>
+        </div>
+        <div class="dash-tile">
+          <span class="dash-tile-num" id="dashPlan">Free</span>
+          <span class="muted" id="dashPayStatus" data-i18n="dashboard.currentPlan">Current plan</span>
+        </div>
+        <div class="dash-tile">
+          <span class="dash-tile-num" id="dashRefEarned">0</span>
+          <span class="muted" data-i18n="dashboard.referralEarned">Referral tokens earned</span>
+        </div>
+      </div>
+      <div class="referral-link-row">
+        <input id="dashRefLink" type="text" readonly />
+        <button type="button" id="dashCopyRefBtn" class="primary-btn" data-i18n="referral.copy">⧉ Copy</button>
+      </div>
+      <div class="dash-actions">
+        <button type="button" id="dashUpgradeBtn" class="primary-btn" data-i18n="dashboard.upgrade">⭐ Upgrade plan</button>
+      </div>
+      <h4 class="dash-history-title" data-i18n="dashboard.history">Recent usage</h4>
+      <div id="dashHistory" class="dash-history"><p class="muted" data-i18n="dashboard.noUsage">No usage yet.</p></div>
+    </div>
+  </div>
 
   <!-- toast -->
   <div id="toast" class="toast hidden"></div>

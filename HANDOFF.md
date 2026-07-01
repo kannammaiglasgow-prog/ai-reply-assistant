@@ -196,10 +196,111 @@ architecture, data model, and build order are in **`PHASE2-SPEC.md`** — start 
   GOOGLE_CLIENT_ID/DB the login UI hides and the app runs exactly like Phase 1 (localStorage usage).
   **NOT YET TESTED end-to-end** — needs the user to add real Supabase creds + a Google OAuth Web
   Client ID and run `supabase/schema.sql`. Then verify sign-in creates a user row with +20 bonus.
-- **Step 3 (NEXT) — server-side usage.** Move daily/bonus counting into the DB
-  (`daily_usage`/`monthly_usage` tables exist), have `/api/generate*` read the session, check &
-  decrement (daily allowance first, then `bonus_balance`), and retire the localStorage limit once
-  signed in. Then Step 4 events (generate/copy) → Step 5 referral engine → 6 dashboard → 7 admin.
+- **Step 3 — server-side usage / TOKEN SYSTEM (DONE, 2026-07-01 session — "Phase A").** The user
+  supplied a full spec (login gate + tokens + referral + membership + admin control). Phase A
+  (core) is built; referral engine / membership+Stripe / user dashboard are the next phases.
+  What exists now:
+  - **Guest flow:** a guest gets N free generations (default 1, admin key `guest_free_generations`),
+    tracked server-side in a signed `are_guest` cookie (auth.js `readGuestUsage`/`setGuestUsage`,
+    resets per UTC day). When exhausted → 401 `{ needsLogin:true, error:"Please login with Google
+    to continue." }` → frontend opens a **login modal** (`#loginModal` in index.html) with a GIS
+    button. Verified end-to-end in the browser with fake creds (real Gemini reply on try 1, modal
+    on try 2 — screenshot in session log).
+  - **Token system:** first Google login grants `starter_tokens` (default 50, admin-configurable —
+    NOT hardcoded; `loginOrCreateUser` reads it). Every generation costs
+    `token_cost_per_generation` (default 1) × replies, deducted **server-side AFTER success**
+    (`resolveGate()` + `gate.commit()` in server.js — check before the AI call, charge after).
+    Balance lives on `users.bonus_balance`, audited in the new `token_transactions` ledger table;
+    per-generation rows go to the new `usage_logs` table. Out of tokens → 402
+    `{ needsTokens:true }` → frontend opens an **upgrade modal** (`#upgradeModal`, checkout TBD).
+    Balance shown in a topbar badge (`#tokenBadge`) + usage counter line; `/api/generate*`
+    responses include `tokenBalance` / `guestRemaining` so the UI stays in sync.
+  - **Admin Settings page:** `/admin.html` now has a ⚙️ Settings panel (first panel) editing 11
+    keys via `GET/PUT /api/admin/settings` (password-protected, `SETTINGS_SCHEMA` server-side
+    validation): guest_free_generations, guest_trial_enabled, starter_tokens,
+    token_cost_per_generation, referral_reward, referral_enabled, referral_min_action
+    (signup|first_generation|paid_membership), max_referral_rewards_per_month,
+    membership_enabled, free_user_default_status, paid_user_default_status.
+  - **Schema additions** (`supabase/schema.sql` — re-run in Supabase SQL editor when activating):
+    `token_transactions`, `usage_logs`, `subscriptions` tables; re-seeded `pricing_settings`
+    (new keys above); plans re-seeded as Free/Basic/Pro/Business per the spec.
+  - **Mode switch:** everything keys off `tokenSystemActive()` (= GOOGLE_CLIENT_ID **and**
+    Supabase creds present). Without creds the app runs EXACTLY as Phase 1 (localStorage
+    FREE_LIMIT) — verified before/after. `/api/config` now returns `tokenSystem`,
+    `guestFreeGenerations`, `guestTrialEnabled`, `tokenCostPerGeneration`.
+  - **BUG FIXED on the way:** auth.js used to read `GOOGLE_CLIENT_ID`/`SESSION_SECRET` at module
+    scope — but ESM hoists imports above server.js's `dotenv.config()`, so values from a local
+    `.env` were NEVER seen (login silently stayed off; Render worked only because its dashboard
+    env vars are real process env). auth.js now reads env lazily like db.js. Don't regress this.
+  - **NOT yet built (next phases):** membership purchase/Stripe (schema + admin toggles exist,
+    no checkout), user dashboard page (profile/plan/usage history), admin per-user management UI.
+    i18n: new keys (`login.*`, `upgrade.*`, `referral.*`,
+    `generate.tokenBalance/guestLeft/loginToStart/outOfTokens`) exist in **en.json only** so far —
+    other 9 dictionaries fall back to English until translated.
+
+- **Phase B — referral reward engine (DONE, same 2026-07-01 session).**
+  - **Engine:** `processReferralReward(invitedUserId, trigger)` in db.js — triggers are
+    `signup` (fired in `/api/auth/google` on isNew) and `first_generation` (fired in the user
+    `gate.commit` after each successful charge; exits instantly when no pending referral).
+    `paid_membership` is defined in the trigger ordering but nothing fires it until the
+    membership phase. A LATER action satisfies an EARLIER `referral_min_action` (ordering
+    signup < first_generation < paid_membership).
+  - **Anti-fraud (per spec):** clicks alone create nothing (reward only fires from verified
+    Google sign-ins); `referrals.invited_user_id` UNIQUE → one referred user rewards one
+    referrer once; one-way conditional update `pending → reward_sent` (`.eq('status','pending')`)
+    blocks concurrent double-pay; self-referral double-checked; blocked/suspended referrers get
+    nothing; `max_referral_rewards_per_month` cap — a qualified referral past the cap STAYS
+    pending and pays on a later trigger (i.e. deferred to next month), by design.
+  - **Reward amount** read live from `referral_reward` (default 10) — admin-configurable, and
+    paid via `grantTokens(..., 'referral_reward')` so it lands in the token ledger.
+  - **Routes:** `/ref/:code` added (spec URL shape) alongside legacy `/invite/:code` — both just
+    redirect to `/?ref=CODE`. New `GET /api/referrals` (session required) → `{ enabled, reward,
+    code, link, invited, pending, rewarded, tokensEarned }`; link is built from the request's own
+    host so it's correct on any deployment. `/api/config` now also returns `referralEnabled`.
+  - **UI:** 🎁 button in the topbar (visible only signed-in + referral system on) opens a
+    **Refer & Earn modal** (`#referralModal`): shareable link + Copy, and Invited / Pending /
+    Rewarded / Tokens-earned stat tiles. Signed-out access bounces to the login modal.
+    `referralRewardLine` deliberately has NO data-i18n (JS injects the live reward amount).
+  - Verified with fake creds: `/ref/X` → `/?ref=X`, `/api/referrals` 401 signed-out → login
+    modal, modal layout screenshot-checked; legacy mode (no creds) re-verified untouched after.
+    The reward path itself (real payout) still needs real Supabase + two Google accounts to test.
+
+- **Phase C — membership plans + Stripe prep + user dashboard (DONE, same 2026-07-01 session).**
+  - **Plans API:** public `GET /api/plans` → active plans (id, name, monthlyPrice, monthlyTokens),
+    hidden entirely when `membership_enabled` is off or token system inactive. Admin editor:
+    `GET /api/admin/plans` (all incl. inactive) + `PUT /api/admin/plans` (upsert ONE plan —
+    no id = create; validates name/price/limit/priority/active). db.js: `getActivePlans`,
+    `getAllPlans`, `getPlanById`, `upsertPlan`.
+  - **Checkout seam (Stripe NOT wired):** `POST /api/checkout { planId }` — session required,
+    validates the plan, then returns 503 `pendingPayment:true` "Payments are coming soon" while
+    `STRIPE_SECRET_KEY` is unset (placeholders added to .env/.env.example). When implementing
+    Stripe: create a Checkout Session in that handler and have the WEBHOOK call
+    `db.activateSubscription({userId, planId, stripe*Ids})` — that helper already exists and
+    does everything (subscriptions row status 'active' + 1-month period, users.plan_id + role
+    'premium', grants monthly_limit tokens via the ledger, logs a 'subscribe' event). NEVER
+    activate a plan from client input without payment verification.
+  - **User dashboard:** click the signed-in user chip (name/avatar, `#dashboardBtn`) → dashboard
+    modal: profile (picture/name/email), token balance, current plan + payment status
+    (active|expired|cancelled|failed from the latest subscriptions row), referral link + copy,
+    referral tokens earned, ⭐ Upgrade button (→ plans modal), last-10 usage history
+    (`GET /api/me/summary` returns all of it in one call; db.js `getLatestSubscription`,
+    `getUserUsageHistory`).
+  - **Plans modal** (`#plansModal`): card per plan (name/price/tokens-per-month), Choose →
+    `/api/checkout` (signed-out → login modal); opened from the out-of-tokens upgrade modal's
+    CTA, the Top Up button, and the dashboard's Upgrade button.
+  - **Admin page:** new "⭐ Membership plans" panel — editable table (name/price/monthly
+    tokens/order/active) + "+ Add plan" + "Save plans" (each row PUT separately).
+  - `/api/config` now also returns `membershipEnabled`.
+  - Verified: legacy mode untouched (plans `{enabled:false}`, checkout/summary 503); token mode
+    (fake creds): checkout + summary 401 signed-out; plans modal, dashboard modal, admin plan
+    editor all layout-checked in-browser (screenshots in session). Real subscription activation
+    needs Stripe keys + a real DB — deliberately unreachable until then.
+  - **Remaining after Phase C:** actual Stripe Checkout + webhook, admin per-user management UI
+    (block/grant tokens per user), user-facing "payment history", i18n translations of the new
+    keys (`plans.*`, `dashboard.*`) beyond English.
+  - **To activate:** fill SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY + GOOGLE_CLIENT_ID +
+    SESSION_SECRET in .env (and Render env), run the updated schema.sql, then test a real Google
+    sign-in (should create the user with 50 tokens and show the badge).
 
 ## Deployment (DONE — read before redeploying)
 - **GitHub:** https://github.com/kannammaiglasgow-prog/ai-reply-assistant, branch `main`. Always

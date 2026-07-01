@@ -7,7 +7,27 @@ import express from 'express';
 // override:true so the key in .env always wins over any stale system env var
 dotenv.config({ override: true });
 import OpenAI from 'openai';
-import { dbEnabled, checkDb, loginOrCreateUser, getUserById, logEvent } from './db.js';
+import {
+  dbEnabled,
+  checkDb,
+  loginOrCreateUser,
+  getUserById,
+  logEvent,
+  getSettings,
+  getSettingInt,
+  getSettingBool,
+  updateSettings,
+  spendTokens,
+  logUsage,
+  processReferralReward,
+  getReferralStats,
+  getActivePlans,
+  getAllPlans,
+  getPlanById,
+  upsertPlan,
+  getLatestSubscription,
+  getUserUsageHistory,
+} from './db.js';
 import {
   googleAuthConfigured,
   getGoogleClientId,
@@ -16,6 +36,8 @@ import {
   setSessionCookie,
   clearSessionCookie,
   getSessionUserId,
+  readGuestUsage,
+  setGuestUsage,
 } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -205,14 +227,25 @@ async function generateJson(systemText, userText, temperature, image) {
 const app = express();
 app.use(express.json({ limit: '12mb' })); // larger limit so uploaded images (base64) fit
 
-// Invite links: /invite/<CODE> drops the code into the URL the SPA loads, so the sign-in
-// flow can forward it as referred_by. Defined before static so it isn't shadowed by a file.
-app.get('/invite/:code', (req, res) => {
+// Invite links: /invite/<CODE> (legacy) and /ref/<CODE> (spec shape) drop the code into the URL
+// the SPA loads, so the sign-in flow can forward it as referred_by. A click alone creates
+// NOTHING server-side — rewards only ever fire after a verified Google sign-in.
+// Defined before static so they aren't shadowed by a file.
+function inviteRedirect(req, res) {
   const code = String(req.params.code || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 16);
   res.redirect(code ? `/?ref=${encodeURIComponent(code)}` : '/');
-});
+}
+app.get('/invite/:code', inviteRedirect);
+app.get('/ref/:code', inviteRedirect);
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// The token system is only active when BOTH Google login and the database are configured
+// (a login CTA is meaningless without an account to attach tokens to). When inactive, the app
+// falls back to the Phase-1 localStorage free-limit behaviour and never gates server-side.
+function tokenSystemActive() {
+  return googleAuthConfigured() && dbEnabled();
+}
 
 // Shape the user row into the safe subset the browser is allowed to see.
 function publicUser(u) {
@@ -224,18 +257,42 @@ function publicUser(u) {
     picture: u.picture,
     role: u.role,
     status: u.status,
+    plan: u.plan_id ? 'paid' : 'free',
     referralCode: u.referral_code,
-    bonusBalance: u.bonus_balance,
+    tokens: u.bonus_balance,        // canonical token balance
+    bonusBalance: u.bonus_balance,  // legacy alias (older frontend used this)
     devMode: u.dev_mode,
   };
 }
 
-// Tells the frontend whether login/DB are available and which Google client to use.
-app.get('/api/config', (req, res) => {
+// Tells the frontend whether login/DB are available, which Google client to use, and the
+// admin-configured guest allowance so the UI can show the right counter before a request.
+app.get('/api/config', async (req, res) => {
+  const active = tokenSystemActive();
+  let guestFreeGenerations = 1;
+  let guestTrialEnabled = true;
+  let tokenCostPerGeneration = 1;
+  let referralEnabled = true;
+  let membershipEnabled = true;
+  if (active) {
+    try {
+      guestFreeGenerations = await getSettingInt('guest_free_generations', 1);
+      guestTrialEnabled = await getSettingBool('guest_trial_enabled', true);
+      tokenCostPerGeneration = await getSettingInt('token_cost_per_generation', 1);
+      referralEnabled = await getSettingBool('referral_enabled', true);
+      membershipEnabled = await getSettingBool('membership_enabled', true);
+    } catch { /* fall back to defaults if the settings read fails */ }
+  }
   res.json({
     googleClientId: getGoogleClientId(),
-    authEnabled: googleAuthConfigured() && dbEnabled(),
+    authEnabled: active,
     dbEnabled: dbEnabled(),
+    tokenSystem: active,
+    guestFreeGenerations,
+    guestTrialEnabled,
+    tokenCostPerGeneration,
+    referralEnabled,
+    membershipEnabled,
   });
 });
 
@@ -263,6 +320,9 @@ app.post('/api/auth/google', async (req, res) => {
     }
     setSessionCookie(res, createSessionToken(user.id));
     logEvent(user.id, 'login');
+    // Referral engine: a brand-new verified sign-in may satisfy the 'signup' min-action.
+    // Fire-and-forget — the sign-in response never waits on (or fails because of) the payout.
+    if (isNew) processReferralReward(user.id, 'signup');
     res.json({ user: publicUser(user), isNew });
   } catch (e) {
     console.error('auth/google failed:', e?.message || e);
@@ -285,6 +345,104 @@ app.get('/api/auth/me', async (req, res) => {
 app.post('/api/auth/logout', (req, res) => {
   clearSessionCookie(res);
   res.json({ ok: true });
+});
+
+// Referral page data for the signed-in user: their link + live stats.
+app.get('/api/referrals', async (req, res) => {
+  if (!tokenSystemActive()) return res.status(503).json({ error: 'Referrals are not available yet.' });
+  const uid = getSessionUserId(req);
+  if (!uid) return res.status(401).json({ error: 'Please login with Google to continue.', needsLogin: true });
+  const user = await getUserById(uid);
+  if (!user) return res.status(401).json({ error: 'Please login with Google to continue.', needsLogin: true });
+
+  const enabled = await getSettingBool('referral_enabled', true);
+  const reward = await getSettingInt('referral_reward', 10);
+  const stats = (await getReferralStats(uid)) || { invited: 0, pending: 0, rewarded: 0, tokensEarned: 0 };
+  // Build the shareable link from the request's own origin so it works on any deployment.
+  const proto = req.get('x-forwarded-proto') || req.protocol || 'https';
+  const host = req.get('x-forwarded-host') || req.get('host') || '';
+  res.json({
+    enabled,
+    reward,
+    code: user.referral_code,
+    link: user.referral_code ? `${proto}://${host}/ref/${user.referral_code}` : null,
+    ...stats,
+  });
+});
+
+// ===== Membership plans + checkout seam (Phase C) =====
+
+// Public: active plans for the membership page (visible to guests too, as an upsell).
+app.get('/api/plans', async (req, res) => {
+  if (!tokenSystemActive()) return res.json({ enabled: false, plans: [] });
+  const enabled = await getSettingBool('membership_enabled', true);
+  const plans = enabled ? await getActivePlans() : [];
+  res.json({
+    enabled,
+    plans: plans.map((p) => ({
+      id: p.id,
+      name: p.name,
+      monthlyPrice: Number(p.monthly_price),
+      monthlyTokens: p.monthly_limit,
+    })),
+  });
+});
+
+// Checkout seam: validates the plan and hands off to Stripe — which isn't configured yet, so
+// this deliberately returns a clear 503. When Stripe lands: create a Checkout Session here,
+// return its URL, and let the webhook call db.activateSubscription() on payment success.
+// NEVER activate a paid plan directly in this handler based on client input alone.
+app.post('/api/checkout', async (req, res) => {
+  if (!tokenSystemActive()) return res.status(503).json({ error: 'Membership is not available yet.' });
+  const uid = getSessionUserId(req);
+  if (!uid) return res.status(401).json({ error: 'Please login with Google to continue.', needsLogin: true });
+  if (!(await getSettingBool('membership_enabled', true))) {
+    return res.status(503).json({ error: 'Membership plans are currently disabled.' });
+  }
+  const plan = await getPlanById(req.body?.planId);
+  if (!plan || !plan.active) return res.status(400).json({ error: 'Plan not found.' });
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return res.status(503).json({
+      error: 'Payments are coming soon — Stripe is not connected yet.',
+      pendingPayment: true,
+      plan: { id: plan.id, name: plan.name, monthlyPrice: Number(plan.monthly_price) },
+    });
+  }
+  // Stripe-configured path lands in the payment phase (Checkout Session + webhook).
+  res.status(501).json({ error: 'Stripe checkout is not implemented yet.' });
+});
+
+// Dashboard: everything the signed-in user's dashboard shows, in one call.
+app.get('/api/me/summary', async (req, res) => {
+  if (!tokenSystemActive()) return res.status(503).json({ error: 'Accounts are not available yet.' });
+  const uid = getSessionUserId(req);
+  if (!uid) return res.status(401).json({ error: 'Please login with Google to continue.', needsLogin: true });
+  const user = await getUserById(uid);
+  if (!user) return res.status(401).json({ error: 'Please login with Google to continue.', needsLogin: true });
+
+  const [plan, subscription, referralStats, usage] = await Promise.all([
+    user.plan_id ? getPlanById(user.plan_id) : null,
+    getLatestSubscription(uid),
+    getReferralStats(uid),
+    getUserUsageHistory(uid, 10),
+  ]);
+
+  const proto = req.get('x-forwarded-proto') || req.protocol || 'https';
+  const host = req.get('x-forwarded-host') || req.get('host') || '';
+  res.json({
+    user: publicUser(user),
+    tokens: user.bonus_balance || 0,
+    plan: plan
+      ? { id: plan.id, name: plan.name, monthlyPrice: Number(plan.monthly_price), monthlyTokens: plan.monthly_limit }
+      : { id: null, name: 'Free', monthlyPrice: 0, monthlyTokens: null },
+    paymentStatus: subscription ? subscription.status : null, // active | expired | cancelled | failed | past_due
+    referral: {
+      link: user.referral_code ? `${proto}://${host}/ref/${user.referral_code}` : null,
+      ...(referralStats || { invited: 0, pending: 0, rewarded: 0, tokensEarned: 0 }),
+    },
+    usage,
+  });
 });
 
 // --- Allowed option values (kept in sync with the frontend) ---
@@ -517,9 +675,81 @@ function validateBody(body) {
   return { message, image, perspective, styles, language, count };
 }
 
+// Decide whether this request is allowed to generate, and how it will be charged.
+// Returns either { allow:false, status, body } (reject), or { allow:true, mode, commit }.
+// `commit(res, actualReplies)` is called ONLY after a successful generation and performs the
+// token deduction / guest-counter bump, returning extra fields to merge into the JSON response
+// (tokenBalance for users, guestRemaining for guests). Tokens are spent AFTER success, never before.
+async function resolveGate(req, requestedCount, action = 'generate') {
+  // Phase-1 / not configured: no server-side gating (frontend keeps the localStorage limit).
+  if (!tokenSystemActive()) {
+    return { allow: true, mode: 'legacy', commit: async () => ({}) };
+  }
+
+  const tokenCost = await getSettingInt('token_cost_per_generation', 1);
+  const uid = getSessionUserId(req);
+
+  if (uid) {
+    const user = await getUserById(uid);
+    if (user) {
+      if (user.status && user.status !== 'active') {
+        return { allow: false, status: 403, body: { error: `Your account is ${user.status}. Contact support.`, blocked: true } };
+      }
+      const balance = user.bonus_balance || 0;
+      const needed = tokenCost * requestedCount;
+      if (balance < needed) {
+        return {
+          allow: false,
+          status: 402,
+          body: { error: 'You are out of tokens. Upgrade your plan or top up to keep generating.', needsTokens: true, tokenBalance: balance },
+        };
+      }
+      return {
+        allow: true,
+        mode: 'user',
+        commit: async (_res, actualReplies) => {
+          const spend = tokenCost * actualReplies;
+          const tokenBalance = await spendTokens(uid, spend, action);
+          await logUsage({ userId: uid, action, tokensSpent: spend, replies: actualReplies });
+          logEvent(uid, action);
+          // Referral engine: generating may satisfy the 'first_generation' min-action for this
+          // invited user. Exits instantly when there's no pending referral (the common case).
+          processReferralReward(uid, 'first_generation');
+          return { tokenBalance };
+        },
+      };
+    }
+    // Stale/invalid session → fall through to the guest path.
+  }
+
+  // Guest path (not signed in).
+  const guestEnabled = await getSettingBool('guest_trial_enabled', true);
+  const guestFree = await getSettingInt('guest_free_generations', 1);
+  const loginRequired = { allow: false, status: 401, body: { error: 'Please login with Google to continue.', needsLogin: true } };
+  if (!guestEnabled || guestFree <= 0) return loginRequired;
+
+  const { used } = readGuestUsage(req);
+  const remaining = Math.max(0, guestFree - used);
+  if (remaining < requestedCount) return loginRequired;
+
+  return {
+    allow: true,
+    mode: 'guest',
+    commit: async (res, actualReplies) => {
+      const newUsed = used + actualReplies;
+      setGuestUsage(res, newUsed);
+      await logUsage({ guest: true, action, tokensSpent: 0, replies: actualReplies });
+      return { guestRemaining: Math.max(0, guestFree - newUsed) };
+    },
+  };
+}
+
 async function handleGenerate(req, res) {
   const parsed = validateBody(req.body || {});
   if (parsed.error) return res.status(400).json({ error: parsed.error });
+
+  const gate = await resolveGate(req, parsed.count, 'generate');
+  if (!gate.allow) return res.status(gate.status).json(gate.body);
 
   if (activeKeyMissing()) {
     return res.status(500).json({ error: `Server is missing the API key for provider "${PROVIDER}". Add it to your .env file and restart.` });
@@ -563,7 +793,11 @@ async function handleGenerate(req, res) {
       hasImage: !!parsed.image,
     });
 
-    res.json({ replies: clean });
+    // Charge tokens / bump the guest counter now that generation succeeded.
+    let extra = {};
+    try { extra = (await gate.commit(res, clean.length)) || {}; } catch (e) { console.error('gate.commit failed:', e?.message || e); }
+
+    res.json({ replies: clean, ...extra });
   } catch (err) {
     console.error(`${PROVIDER} error:`, err?.message || err);
     let status = 502;
@@ -614,6 +848,9 @@ app.post('/api/regenerate', async (req, res) => {
     return res.status(500).json({ error: `Server is missing the API key for provider "${PROVIDER}".` });
   }
 
+  const gate = await resolveGate(req, 1, 'regenerate');
+  if (!gate.allow) return res.status(gate.status).json(gate.body);
+
   try {
     const raw = await generateJson(
       buildSystemPrompt(),
@@ -630,6 +867,9 @@ app.post('/api/regenerate', async (req, res) => {
     );
     if (!first) return res.status(502).json({ error: 'No reply generated.' });
 
+    let extra = {};
+    try { extra = (await gate.commit(res, 1)) || {}; } catch (e) { console.error('gate.commit failed:', e?.message || e); }
+
     res.json({
       reply: {
         style,
@@ -640,6 +880,7 @@ app.post('/api/regenerate', async (req, res) => {
           : perspective,
         text: first.text.trim(),
       },
+      ...extra,
     });
   } catch (err) {
     console.error('OpenAI error (regenerate):', err?.message || err);
@@ -805,6 +1046,113 @@ app.post('/api/feedback', (req, res) => {
 app.get('/api/admin/db-check', async (req, res) => {
   if (!checkAdmin(req, res)) return;
   res.json(await checkDb());
+});
+
+// ---- Admin-editable settings (every user-facing number lives in pricing_settings) ----
+// Each key declares its type + validation so the admin page can't write nonsense.
+const SETTINGS_SCHEMA = {
+  guest_free_generations:        { type: 'int',  min: 0, max: 1000 },
+  guest_trial_enabled:           { type: 'bool' },
+  starter_tokens:                { type: 'int',  min: 0, max: 1000000 },
+  token_cost_per_generation:     { type: 'int',  min: 0, max: 10000 },
+  referral_reward:               { type: 'int',  min: 0, max: 1000000 },
+  referral_enabled:              { type: 'bool' },
+  referral_min_action:           { type: 'enum', values: ['signup', 'first_generation', 'paid_membership'] },
+  max_referral_rewards_per_month:{ type: 'int',  min: 0, max: 1000000 },
+  membership_enabled:            { type: 'bool' },
+  free_user_default_status:      { type: 'enum', values: ['active', 'blocked'] },
+  paid_user_default_status:      { type: 'enum', values: ['active', 'expired', 'cancelled'] },
+};
+
+// Coerce+validate one incoming value against its schema. Returns { value } or { error }.
+function coerceSetting(def, raw) {
+  if (def.type === 'int') {
+    const n = parseInt(raw, 10);
+    if (!Number.isFinite(n)) return { error: 'must be a number' };
+    if (def.min != null && n < def.min) return { error: `must be ≥ ${def.min}` };
+    if (def.max != null && n > def.max) return { error: `must be ≤ ${def.max}` };
+    return { value: String(n) };
+  }
+  if (def.type === 'bool') {
+    const on = raw === true || /^(true|1|on|yes)$/i.test(String(raw).trim());
+    return { value: on ? 'true' : 'false' };
+  }
+  if (def.type === 'enum') {
+    const v = String(raw).trim();
+    if (!def.values.includes(v)) return { error: `must be one of: ${def.values.join(', ')}` };
+    return { value: v };
+  }
+  return { error: 'unknown type' };
+}
+
+// Read current settings (merged with schema defaults so the form always has every field).
+app.get('/api/admin/settings', async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  if (!dbEnabled()) {
+    return res.status(503).json({ error: 'Connect Supabase (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY) to manage settings.' });
+  }
+  const stored = await getSettings();
+  const settings = {};
+  for (const key of Object.keys(SETTINGS_SCHEMA)) {
+    settings[key] = key in stored ? stored[key] : null;
+  }
+  res.json({ settings, schema: SETTINGS_SCHEMA });
+});
+
+// Update one or more settings. Only known keys are accepted; each is validated.
+app.put('/api/admin/settings', async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  if (!dbEnabled()) {
+    return res.status(503).json({ error: 'Connect Supabase to manage settings.' });
+  }
+  const body = req.body || {};
+  const patch = {};
+  for (const [key, def] of Object.entries(SETTINGS_SCHEMA)) {
+    if (!(key in body)) continue;
+    const { value, error } = coerceSetting(def, body[key]);
+    if (error) return res.status(400).json({ error: `${key}: ${error}` });
+    patch[key] = value;
+  }
+  if (Object.keys(patch).length === 0) {
+    return res.status(400).json({ error: 'No valid settings supplied.' });
+  }
+  try {
+    const updated = await updateSettings(patch);
+    res.json({ ok: true, settings: updated });
+  } catch (e) {
+    res.status(500).json({ error: e?.message || 'Could not save settings.' });
+  }
+});
+
+// ---- Admin: membership plan editor (create/update plans, prices, limits) ----
+app.get('/api/admin/plans', async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  if (!dbEnabled()) return res.status(503).json({ error: 'Connect Supabase to manage plans.' });
+  res.json({ plans: await getAllPlans() });
+});
+
+// Upsert one plan. No id = create. Validated here; prices/limits are admin's to choose.
+app.put('/api/admin/plans', async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  if (!dbEnabled()) return res.status(503).json({ error: 'Connect Supabase to manage plans.' });
+  const b = req.body || {};
+  const name = typeof b.name === 'string' ? b.name.trim().slice(0, 60) : '';
+  if (!name) return res.status(400).json({ error: 'Plan name is required.' });
+  const price = Number(b.monthly_price);
+  if (!Number.isFinite(price) || price < 0) return res.status(400).json({ error: 'monthly_price must be a number ≥ 0.' });
+  let limit = null;
+  if (b.monthly_limit !== null && b.monthly_limit !== undefined && b.monthly_limit !== '') {
+    limit = parseInt(b.monthly_limit, 10);
+    if (!Number.isFinite(limit) || limit < 0) return res.status(400).json({ error: 'monthly_limit must be a number ≥ 0 (empty = unlimited).' });
+  }
+  const priority = Number.isFinite(parseInt(b.priority, 10)) ? parseInt(b.priority, 10) : 0;
+  const active = b.active === true || /^(true|1|on|yes)$/i.test(String(b.active));
+  try {
+    const plan = await upsertPlan({ id: b.id || null, name, monthly_price: price, monthly_limit: limit, priority, active });
+    res.json({ ok: true, plan });
+  } catch (e) {
+    res.status(500).json({ error: e?.message || 'Could not save the plan.' });
+  }
 });
 
 // Quick aggregate view of collected feedback (handy for spotting weak styles/perspectives).

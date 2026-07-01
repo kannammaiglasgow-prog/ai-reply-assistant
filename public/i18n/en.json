@@ -83,7 +83,57 @@
     "dailyLimitTitle": "Daily free limit reached",
     "dailyLimitStatus": "Daily free limit reached. Please top up to generate more replies.",
     "topUpComingSoon": "Top-up feature coming soon.",
-    "generatingCount": "Generating {count} replies…"
+    "generatingCount": "Generating {count} replies…",
+    "tokenBalance": "🎟️ {n} tokens left",
+    "guestLeft": "{left} free tries left — log in for more",
+    "loginToStart": "Log in with Google to start",
+    "outOfTokens": "You're out of tokens. Upgrade or top up to keep generating."
+  },
+  "login": {
+    "title": "Please log in to continue",
+    "message": "Please login with Google to continue.",
+    "starterHint": "You'll get free starter tokens after signing in with Google."
+  },
+  "upgrade": {
+    "title": "You're out of tokens",
+    "message": "Upgrade your plan or top up to keep generating replies.",
+    "cta": "Upgrade / Buy tokens",
+    "later": "Maybe later",
+    "soon": "Membership & top-up checkout is coming soon."
+  },
+  "plans": {
+    "title": "Choose your plan",
+    "subtitle": "More tokens every month. Cancel anytime.",
+    "loading": "Loading plans…",
+    "unavailable": "Membership plans are not available right now.",
+    "free": "Free",
+    "perMonth": "/mo",
+    "tokensPerMonth": "{n} tokens / month",
+    "unlimited": "Unlimited tokens",
+    "choose": "Choose",
+    "currentFree": "Included",
+    "paymentSoon": "Secure checkout is coming soon."
+  },
+  "dashboard": {
+    "openTitle": "Open your dashboard",
+    "tokens": "Token balance",
+    "currentPlan": "Current plan",
+    "referralEarned": "Referral tokens earned",
+    "upgrade": "⭐ Upgrade plan",
+    "history": "Recent usage",
+    "noUsage": "No usage yet."
+  },
+  "referral": {
+    "buttonTitle": "Refer & earn tokens",
+    "title": "Refer & Earn",
+    "rewardLine": "Invite friends — you earn {n} tokens when they join.",
+    "copy": "⧉ Copy",
+    "copied": "Referral link copied ✓",
+    "invited": "Invited",
+    "pending": "Pending",
+    "rewarded": "Rewarded",
+    "earned": "Tokens earned",
+    "fineprint": "Rewards are granted after your friend signs in with Google (per the current referral rules)."
   },
   "empty": {
     "title": "Your AI replies will appear here",
@@ -120,7 +170,7 @@
     "removedFromSaved": "Removed from saved",
     "allRepliesCopied": "All replies copied",
     "signedInAs": "Signed in as {name}",
-    "welcomeBonus": "🎉 Welcome! You have received {n} free AI replies.",
+    "welcomeBonus": "🎉 Welcome! You have received {n} free tokens.",
     "signInFailed": "Sign-in failed.",
     "couldNotReachServer": "Could not reach the server for sign-in.",
     "signedOut": "Signed out",
