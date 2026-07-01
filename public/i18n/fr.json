@@ -1,0 +1,148 @@
+{
+  "langPicker": {
+    "searchPlaceholder": "Rechercher des langues...",
+    "popular": "Populaires",
+    "allLanguages": "Toutes les langues",
+    "noMatches": "Aucun résultat",
+    "uiLanguageTitle": "Langue de l'interface",
+    "outputLanguageTitle": "Langue de sortie"
+  },
+  "nav": {
+    "brandName": "Assistant de Réponses IA",
+    "home": "Accueil",
+    "recent": "Récents",
+    "saved": "Réponses enregistrées",
+    "settings": "Paramètres",
+    "comingSoon": "« {name} » arrive dans la prochaine mise à jour.",
+    "themeToggleTitle": "Basculer mode clair / sombre",
+    "interfaceLanguageTitle": "Langue de l'interface",
+    "signOut": "Se déconnecter",
+    "adminTitle": "Analytique administrateur",
+    "adminName": "Admin"
+  },
+  "step1": {
+    "title": "Coller un message ou une URL",
+    "urlPlaceholder": "…ou coller une URL YouTube / Instagram",
+    "fetchContext": "Récupérer le contexte",
+    "fetching": "Récupération…",
+    "clearContextTitle": "Effacer le contexte",
+    "messagePlaceholder": "Collez ici un message, une question, une actualité, un commentaire, un e-mail ou une conversation — ou récupérez le contexte depuis une URL ci-dessus.",
+    "charCount": "{count} / {max} caractères",
+    "clearBtn": "⟲ Effacer",
+    "attachImage": "🖼️ Joindre une image",
+    "changeImage": "🖼️ Changer l'image",
+    "attachHint": "Téléversez ou collez une capture d'écran (Ctrl+V) — les publications Instagram / Facebook / X fonctionnent très bien",
+    "removeImageTitle": "Supprimer l'image"
+  },
+  "step2": {
+    "title": "Langue de sortie",
+    "optgroupCommon": "Courantes",
+    "optgroupIndian": "Langues indiennes",
+    "optgroupWorld": "Langues du monde"
+  },
+  "step3": {
+    "title": "Nombre de réponses",
+    "countOne": "{n} réponse",
+    "countMany": "{n} réponses"
+  },
+  "step4": {
+    "title": "Point de vue",
+    "all": "Tous",
+    "supporter": "Favorable",
+    "opposition": "Opposé",
+    "neutral": "Neutre"
+  },
+  "step5": {
+    "title": "Styles de réponse",
+    "hint": "(choisissez-en au moins un)",
+    "styleFriend": "Ami",
+    "styleCasualChat": "Discussion informelle",
+    "styleAngry": "Fâché",
+    "styleComedy": "Drôle / Comique",
+    "styleSarcastic": "Sarcastique",
+    "styleSavage": "Cinglant",
+    "styleTroll": "Troll",
+    "styleRespectful": "Respectueux",
+    "styleProfessional": "Professionnel",
+    "styleRomantic": "Romantique",
+    "styleCute": "Mignon",
+    "styleEmotional": "Triste / Émotionnel",
+    "styleMotivational": "Motivant",
+    "styleMassHero": "Héroïque",
+    "styleCinemaDialogue": "Dialogue de cinéma",
+    "styleVillain": "Méchant",
+    "styleMystery": "Mystère",
+    "stylePunchDialogue": "Réplique percutante",
+    "styleSmsShort": "SMS / Réponse courte",
+    "styleAiRobot": "IA / Robot"
+  },
+  "generate": {
+    "button": "⚡ Générer des réponses IA",
+    "usageCounter": "Réponses gratuites aujourd'hui : {left} / {limit} restantes",
+    "topUp": "Recharger",
+    "dailyLimitTitle": "Limite quotidienne gratuite atteinte",
+    "dailyLimitStatus": "Limite quotidienne gratuite atteinte. Veuillez recharger pour générer plus de réponses.",
+    "topUpComingSoon": "La fonction de recharge arrive bientôt.",
+    "generatingCount": "Génération de {count} réponses…"
+  },
+  "empty": {
+    "title": "Vos réponses IA apparaîtront ici",
+    "desc": "Collez votre message, sélectionnez les options et cliquez sur « Générer des réponses IA » pour commencer.",
+    "tipTitle": "💡 Astuce",
+    "tipDesc": "Soyez précis dans votre message pour de meilleurs résultats.",
+    "quickStartTitle": "🚀 Démarrage rapide",
+    "quickStartDesc": "Coller → Choisir les styles → Générer → Copier vos réponses préférées"
+  },
+  "results": {
+    "titleTemplate": "Réponses générées par l'IA ({count})",
+    "generating": "Génération…",
+    "searchPlaceholder": "Rechercher des réponses...",
+    "allStyles": "Tous les styles",
+    "sortNewest": "Plus récentes",
+    "sortOldest": "Plus anciennes",
+    "sortByStyle": "Par style",
+    "noMatch": "Aucune réponse ne correspond à votre recherche.",
+    "copyAll": "⧉ Tout copier",
+    "exportTxt": "⬇ Exporter en TXT",
+    "exportCsv": "⬇ Exporter en CSV"
+  },
+  "card": {
+    "copy": "⧉ Copier",
+    "copied": "✓ Copié",
+    "regenerate": "↻ Régénérer",
+    "regenerating": "↻ …",
+    "save": "☆ Enregistrer",
+    "saved": "★ Enregistré"
+  },
+  "toast": {
+    "imagePasted": "Image collée ✓",
+    "saved": "Enregistré",
+    "removedFromSaved": "Retiré des favoris",
+    "allRepliesCopied": "Toutes les réponses copiées",
+    "signedInAs": "Connecté en tant que {name}",
+    "welcomeBonus": "🎉 Bienvenue ! Vous avez reçu {n} réponses IA gratuites.",
+    "signInFailed": "Échec de la connexion.",
+    "couldNotReachServer": "Impossible de contacter le serveur pour la connexion.",
+    "signedOut": "Déconnecté",
+    "regenerateFailed": "Échec de la régénération",
+    "networkError": "Erreur réseau",
+    "dailyLimitReached": "Limite quotidienne gratuite atteinte. Rechargez pour en obtenir plus."
+  },
+  "errors": {
+    "pasteMessageOrImage": "Collez d'abord un message ou joignez une image.",
+    "selectStyle": "Sélectionnez au moins un style de réponse.",
+    "onlyLeftOne": "Il ne vous reste que {left} réponse gratuite aujourd'hui. Veuillez sélectionner {left} réponse(s) ou moins, ou recharger.",
+    "onlyLeftMany": "Il ne vous reste que {left} réponses gratuites aujourd'hui. Veuillez sélectionner {left} réponse(s) ou moins, ou recharger.",
+    "somethingWrong": "Une erreur s'est produite.",
+    "networkErrorGenerate": "Erreur réseau — le serveur est-il en cours d'exécution ?",
+    "pasteUrl": "Collez d'abord une URL YouTube ou Instagram.",
+    "couldNotFetchContext": "Impossible de récupérer le contexte.",
+    "couldNotFetchAutoManual": "Récupération automatique impossible — collez les détails manuellement.",
+    "networkErrorContext": "Erreur réseau lors de la récupération du contexte.",
+    "chooseImageFile": "Veuillez choisir un fichier image.",
+    "couldNotReadImage": "Impossible de lire cette image. Essayez un autre fichier."
+  },
+  "footer": {
+    "text": "Suggestions générées par IA — vérifiez avant de publier. Le moteur est chargé de ne pas inventer de faits ; vérifiez toujours les affirmations vous-même."
+  }
+}

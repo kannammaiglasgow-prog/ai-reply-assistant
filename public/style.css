@@ -129,6 +129,76 @@ body {
 .link-btn:hover { text-decoration: underline; }
 @media (max-width: 640px) { .user-name { display: none; } }
 
+/* Basic RTL support (Arabic, Urdu, Hebrew, Persian, etc). Flex "row" direction already flips
+   automatically with dir="rtl"; this just corrects the few things that don't. */
+[dir="rtl"] .checkbox-grid,
+[dir="rtl"] .radio-row { direction: rtl; }
+[dir="rtl"] .card-actions { flex-direction: row-reverse; }
+
+/* ===== Searchable language picker (100+ languages; used for both UI + output language) ===== */
+.lang-picker { position: relative; display: inline-block; }
+.lang-picker-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  max-width: 180px;
+}
+.lang-picker-btn-label {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px;
+}
+.lang-picker-caret { color: var(--muted); font-size: 0.7rem; }
+.lang-picker-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  width: 280px;
+  max-height: 360px;
+  display: flex; flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+[dir="rtl"] .lang-picker-panel { left: auto; right: 0; }
+.lang-picker-panel.hidden { display: none; }
+.lang-picker-search {
+  margin: 8px; width: calc(100% - 16px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.85rem;
+  background: var(--panel-2);
+  color: var(--text);
+}
+.lang-picker-list { overflow-y: auto; padding: 0 4px 8px; }
+.lang-picker-group-label {
+  padding: 6px 10px 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.03em;
+  text-transform: uppercase; color: var(--muted);
+}
+.lang-picker-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.lang-picker-row:hover { background: var(--panel-2); }
+.lang-picker-flag { flex: 0 0 auto; }
+.lang-picker-native { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lang-picker-english { flex: 0 0 auto; color: var(--muted); font-size: 0.76rem; }
+.lang-picker-empty { padding: 14px 10px; color: var(--muted); font-size: 0.85rem; text-align: center; }
+#outputLanguagePicker .lang-picker-btn { width: 100%; max-width: none; }
+#outputLanguagePicker .lang-picker-btn-label { max-width: none; }
+#outputLanguagePicker .lang-picker-panel { width: 100%; }
+
 /* ===== Layout ===== */
 .layout {
   display: grid;
@@ -358,17 +428,28 @@ textarea:focus, select:focus {
 
 /* style badge colors */
 .s-funny       { color: #b45309; background: #fef3c7; }
-.s-smart       { color: #6d28d9; background: #ede9fe; }
 .s-professional{ color: #1d4ed8; background: #dbeafe; }
-.s-friendly    { color: #15803d; background: #dcfce7; }
-.s-emotional   { color: #be185d; background: #fce7f3; }
+.s-emotional   { color: #9d174d; background: #fbcfe8; }
 .s-mass        { color: #c2410c; background: #ffedd5; }
-.s-debate      { color: #0e7490; background: #cffafe; }
-.s-savage      { color: #b91c1c; background: #fee2e2; }
+.s-savage      { color: #991b1b; background: #fecaca; }
 .s-short       { color: #475569; background: #e2e8f0; }
 .s-long        { color: #0f766e; background: #ccfbf1; }
-.s-meme        { color: #4d7c0f; background: #ecfccb; }
 .s-news        { color: #475569; background: #e2e8f0; }
+.s-friend      { color: #15803d; background: #dcfce7; }
+.s-casual      { color: #0e7490; background: #cffafe; }
+.s-angry       { color: #b91c1c; background: #fee2e2; }
+.s-sarcastic   { color: #7c3aed; background: #ede9fe; }
+.s-troll       { color: #a16207; background: #fef9c3; }
+.s-respectful  { color: #0369a1; background: #e0f2fe; }
+.s-romantic    { color: #be123c; background: #ffe4e6; }
+.s-cute        { color: #db2777; background: #fdf2f8; }
+.s-motivational{ color: #ca8a04; background: #fef08a; }
+.s-cinema      { color: #4338ca; background: #e0e7ff; }
+.s-villain     { color: #1f2937; background: #e5e7eb; }
+.s-mystery     { color: #4c1d95; background: #ddd6fe; }
+.s-punch       { color: #c026d3; background: #fae8ff; }
+.s-sms         { color: #475569; background: #e2e8f0; }
+.s-airobot     { color: #334155; background: #f1f5f9; }
 [data-theme="dark"] .badge:not(.persp) { filter: brightness(1.15); }
 
 .card-text { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 0.98rem; }

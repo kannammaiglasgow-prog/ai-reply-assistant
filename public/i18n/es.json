@@ -1,0 +1,148 @@
+{
+  "langPicker": {
+    "searchPlaceholder": "Buscar idiomas...",
+    "popular": "Populares",
+    "allLanguages": "Todos los idiomas",
+    "noMatches": "Sin resultados",
+    "uiLanguageTitle": "Idioma de la interfaz",
+    "outputLanguageTitle": "Idioma de salida"
+  },
+  "nav": {
+    "brandName": "Asistente de Respuestas IA",
+    "home": "Inicio",
+    "recent": "Recientes",
+    "saved": "Respuestas guardadas",
+    "settings": "Ajustes",
+    "comingSoon": "“{name}” llegará en la próxima actualización.",
+    "themeToggleTitle": "Alternar modo claro / oscuro",
+    "interfaceLanguageTitle": "Idioma de la interfaz",
+    "signOut": "Cerrar sesión",
+    "adminTitle": "Analítica de administrador",
+    "adminName": "Admin"
+  },
+  "step1": {
+    "title": "Pega un mensaje o una URL",
+    "urlPlaceholder": "…o pega una URL de YouTube / Instagram",
+    "fetchContext": "Obtener contexto",
+    "fetching": "Obteniendo…",
+    "clearContextTitle": "Borrar contexto",
+    "messagePlaceholder": "Pega aquí cualquier mensaje, pregunta, noticia, comentario, correo o conversación — o obtén el contexto desde una URL arriba.",
+    "charCount": "{count} / {max} caracteres",
+    "clearBtn": "⟲ Borrar",
+    "attachImage": "🖼️ Adjuntar imagen",
+    "changeImage": "🖼️ Cambiar imagen",
+    "attachHint": "Sube o simplemente pega una captura de pantalla (Ctrl+V) — las publicaciones de Instagram / Facebook / X funcionan muy bien",
+    "removeImageTitle": "Quitar imagen"
+  },
+  "step2": {
+    "title": "Idioma de salida",
+    "optgroupCommon": "Comunes",
+    "optgroupIndian": "Idiomas indios",
+    "optgroupWorld": "Idiomas del mundo"
+  },
+  "step3": {
+    "title": "Número de respuestas",
+    "countOne": "{n} respuesta",
+    "countMany": "{n} respuestas"
+  },
+  "step4": {
+    "title": "Perspectiva",
+    "all": "Todas",
+    "supporter": "A favor",
+    "opposition": "En contra",
+    "neutral": "Neutral"
+  },
+  "step5": {
+    "title": "Estilos de respuesta",
+    "hint": "(elige al menos uno)",
+    "styleFriend": "Amigo",
+    "styleCasualChat": "Charla informal",
+    "styleAngry": "Enojado",
+    "styleComedy": "Gracioso / Cómico",
+    "styleSarcastic": "Sarcástico",
+    "styleSavage": "Feroz",
+    "styleTroll": "Troll",
+    "styleRespectful": "Respetuoso",
+    "styleProfessional": "Profesional",
+    "styleRomantic": "Romántico",
+    "styleCute": "Tierno",
+    "styleEmotional": "Triste / Emotivo",
+    "styleMotivational": "Motivacional",
+    "styleMassHero": "Héroe / Épico",
+    "styleCinemaDialogue": "Diálogo de película",
+    "styleVillain": "Villano",
+    "styleMystery": "Misterio",
+    "stylePunchDialogue": "Frase contundente",
+    "styleSmsShort": "SMS / Respuesta corta",
+    "styleAiRobot": "IA / Robot"
+  },
+  "generate": {
+    "button": "⚡ Generar respuestas IA",
+    "usageCounter": "Respuestas gratis hoy: {left} / {limit} restantes",
+    "topUp": "Recargar",
+    "dailyLimitTitle": "Límite diario gratuito alcanzado",
+    "dailyLimitStatus": "Límite diario gratuito alcanzado. Recarga para generar más respuestas.",
+    "topUpComingSoon": "La función de recarga llegará pronto.",
+    "generatingCount": "Generando {count} respuestas…"
+  },
+  "empty": {
+    "title": "Tus respuestas IA aparecerán aquí",
+    "desc": "Pega tu mensaje, selecciona las opciones y haz clic en “Generar respuestas IA” para comenzar.",
+    "tipTitle": "💡 Consejo",
+    "tipDesc": "Sé específico en tu mensaje para obtener mejores resultados.",
+    "quickStartTitle": "🚀 Inicio rápido",
+    "quickStartDesc": "Pega → Elige estilos → Genera → Copia tus respuestas favoritas"
+  },
+  "results": {
+    "titleTemplate": "Respuestas generadas por IA ({count})",
+    "generating": "Generando…",
+    "searchPlaceholder": "Buscar respuestas...",
+    "allStyles": "Todos los estilos",
+    "sortNewest": "Más recientes",
+    "sortOldest": "Más antiguas",
+    "sortByStyle": "Por estilo",
+    "noMatch": "No hay respuestas que coincidan con tu búsqueda.",
+    "copyAll": "⧉ Copiar todo",
+    "exportTxt": "⬇ Exportar TXT",
+    "exportCsv": "⬇ Exportar CSV"
+  },
+  "card": {
+    "copy": "⧉ Copiar",
+    "copied": "✓ Copiado",
+    "regenerate": "↻ Regenerar",
+    "regenerating": "↻ …",
+    "save": "☆ Guardar",
+    "saved": "★ Guardado"
+  },
+  "toast": {
+    "imagePasted": "Imagen pegada ✓",
+    "saved": "Guardado",
+    "removedFromSaved": "Eliminado de guardados",
+    "allRepliesCopied": "Todas las respuestas copiadas",
+    "signedInAs": "Sesión iniciada como {name}",
+    "welcomeBonus": "🎉 ¡Bienvenido! Has recibido {n} respuestas IA gratis.",
+    "signInFailed": "Error al iniciar sesión.",
+    "couldNotReachServer": "No se pudo contactar al servidor para iniciar sesión.",
+    "signedOut": "Sesión cerrada",
+    "regenerateFailed": "Error al regenerar",
+    "networkError": "Error de red",
+    "dailyLimitReached": "Límite diario gratuito alcanzado. Recarga para obtener más."
+  },
+  "errors": {
+    "pasteMessageOrImage": "Primero pega un mensaje o adjunta una imagen.",
+    "selectStyle": "Selecciona al menos un estilo de respuesta.",
+    "onlyLeftOne": "Hoy solo te queda {left} respuesta gratis. Selecciona {left} o menos respuestas, o recarga.",
+    "onlyLeftMany": "Hoy solo te quedan {left} respuestas gratis. Selecciona {left} o menos respuestas, o recarga.",
+    "somethingWrong": "Algo salió mal.",
+    "networkErrorGenerate": "Error de red — ¿el servidor está en ejecución?",
+    "pasteUrl": "Primero pega una URL de YouTube o Instagram.",
+    "couldNotFetchContext": "No se pudo obtener el contexto.",
+    "couldNotFetchAutoManual": "No se pudo obtener automáticamente — pega los detalles manualmente.",
+    "networkErrorContext": "Error de red al obtener el contexto.",
+    "chooseImageFile": "Selecciona un archivo de imagen.",
+    "couldNotReadImage": "No se pudo leer esa imagen. Prueba con otro archivo."
+  },
+  "footer": {
+    "text": "Sugerencias generadas por IA — revísalas antes de publicar. Se ha indicado al motor que no invente datos; verifica siempre las afirmaciones tú mismo."
+  }
+}

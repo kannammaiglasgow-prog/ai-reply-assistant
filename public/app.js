@@ -24,12 +24,35 @@ const fetchBtn = $('fetchBtn');
 const contextCard = $('contextCard');
 const usageCounter = $('usageCounter');
 const topupBtn = $('topupBtn');
+let outputLangPicker = null; // set once /i18n/output-languages.json loads (100+ reply languages)
 
 const STYLE_CLASS = {
-  Comedy: 's-funny', 'Mass Hero': 's-mass', Smart: 's-smart', Professional: 's-professional',
-  Friendly: 's-friendly', Emotional: 's-emotional', Debate: 's-debate', Savage: 's-savage',
-  Meme: 's-meme', News: 's-news',
+  Friend: 's-friend', 'Casual Chat': 's-casual', Angry: 's-angry', Comedy: 's-funny',
+  Sarcastic: 's-sarcastic', Savage: 's-savage', Troll: 's-troll', Respectful: 's-respectful',
+  Professional: 's-professional', Romantic: 's-romantic', Cute: 's-cute', Emotional: 's-emotional',
+  Motivational: 's-motivational', 'Mass Hero': 's-mass', 'Cinema Dialogue': 's-cinema',
+  Villain: 's-villain', Mystery: 's-mystery', 'Punch Dialogue': 's-punch',
+  'SMS Short': 's-sms', 'AI Robot': 's-airobot',
 };
+
+// Canonical style key (sent to/from the API) -> i18n key, so the badge/checkbox label is
+// translated for display while the value the server sees never changes.
+const STYLE_I18N_KEY = {
+  Friend: 'step5.styleFriend', 'Casual Chat': 'step5.styleCasualChat', Angry: 'step5.styleAngry',
+  Comedy: 'step5.styleComedy', Sarcastic: 'step5.styleSarcastic', Savage: 'step5.styleSavage',
+  Troll: 'step5.styleTroll', Respectful: 'step5.styleRespectful', Professional: 'step5.styleProfessional',
+  Romantic: 'step5.styleRomantic', Cute: 'step5.styleCute', Emotional: 'step5.styleEmotional',
+  Motivational: 'step5.styleMotivational', 'Mass Hero': 'step5.styleMassHero',
+  'Cinema Dialogue': 'step5.styleCinemaDialogue', Villain: 'step5.styleVillain', Mystery: 'step5.styleMystery',
+  'Punch Dialogue': 'step5.stylePunchDialogue', 'SMS Short': 'step5.styleSmsShort', 'AI Robot': 'step5.styleAiRobot',
+};
+function styleLabel(style) {
+  const key = STYLE_I18N_KEY[style];
+  return key ? i18n.t(key) : style;
+}
+
+// Nav tab data-tab value -> i18n key, used to translate the "coming soon" toast.
+const NAV_I18N_KEY = { Recent: 'nav.recent', 'Saved Replies': 'nav.saved', Settings: 'nav.settings' };
 
 // In-memory list of generated replies (each gets a stable id + timestamp)
 let replies = [];
@@ -56,7 +79,7 @@ document.querySelectorAll('.nav-link').forEach((link) => {
     e.preventDefault();
     const tab = link.dataset.tab;
     if (tab !== 'Home') {
-      toast(`“${tab}” is coming in the next update.`);
+      toast(i18n.t('nav.comingSoon', { name: i18n.t(NAV_I18N_KEY[tab] || 'nav.home') }));
       return;
     }
     document.querySelectorAll('.nav-link').forEach((l) => l.classList.toggle('active', l === link));
@@ -64,7 +87,7 @@ document.querySelectorAll('.nav-link').forEach((link) => {
 });
 
 // ===== Daily free-reply limit (localStorage, resets at local midnight) =====
-const FREE_LIMIT = 10;
+const FREE_LIMIT = 1000;
 
 function todayStr() {
   const d = new Date(); // local time
@@ -90,12 +113,12 @@ function addUsed(n) {
 }
 function updateUsageUI() {
   const left = remaining();
-  usageCounter.textContent = `Free replies today: ${left} / ${FREE_LIMIT} remaining`;
+  usageCounter.textContent = i18n.t('generate.usageCounter', { left, limit: FREE_LIMIT });
   if (left <= 0) {
     generateBtn.disabled = true;
-    generateBtn.title = 'Daily free limit reached';
+    generateBtn.title = i18n.t('generate.dailyLimitTitle');
     topupBtn.classList.remove('hidden');
-    setStatus('Daily free limit reached. Please top up to generate more replies.', true);
+    setStatus(i18n.t('generate.dailyLimitStatus'), true);
   } else {
     generateBtn.disabled = false;
     generateBtn.title = '';
@@ -103,7 +126,7 @@ function updateUsageUI() {
   }
 }
 
-topupBtn.addEventListener('click', () => toast('Top-up feature coming soon.'));
+topupBtn.addEventListener('click', () => toast(i18n.t('generate.topUpComingSoon')));
 
 // ===== Toast =====
 let toastTimer;
@@ -116,12 +139,12 @@ function toast(msg, ms = 2200) {
 
 // ===== Char counter + clear =====
 messageEl.addEventListener('input', () => {
-  charCount.textContent = `${messageEl.value.length} / 5000 characters`;
+  charCount.textContent = i18n.t('step1.charCount', { count: messageEl.value.length, max: 5000 });
 });
 // Clear the input fields (message, URL, image, context preview). Keeps the option selections.
 function clearInputs() {
   messageEl.value = '';
-  charCount.textContent = '0 / 5000 characters';
+  charCount.textContent = i18n.t('step1.charCount', { count: 0, max: 5000 });
   urlInput.value = '';
   contextCard.classList.add('hidden');
   clearImage();
@@ -136,15 +159,15 @@ attachBtn.addEventListener('click', () => imageInput.click());
 removeImageBtn.addEventListener('click', clearImage);
 
 async function setImageFromFile(file) {
-  if (!file || !file.type.startsWith('image/')) return setStatus('Please choose an image file.', true);
+  if (!file || !file.type.startsWith('image/')) return setStatus(i18n.t('errors.chooseImageFile'), true);
   try {
     attachedImage = await fileToResizedDataURL(file);
     previewImg.src = attachedImage;
     imagePreview.classList.remove('hidden');
-    attachBtn.textContent = '🖼️ Change image';
+    attachBtn.textContent = i18n.t('step1.changeImage');
     setStatus('');
   } catch {
-    setStatus('Could not read that image. Try another file.', true);
+    setStatus(i18n.t('errors.couldNotReadImage'), true);
   }
 }
 
@@ -163,7 +186,7 @@ document.addEventListener('paste', (e) => {
       if (file) {
         e.preventDefault(); // don't paste the image as junk text
         setImageFromFile(file);
-        toast('Image pasted ✓');
+        toast(i18n.t('toast.imagePasted'));
         return;
       }
     }
@@ -175,7 +198,7 @@ function clearImage() {
   attachedImage = null;
   previewImg.removeAttribute('src');
   imagePreview.classList.add('hidden');
-  attachBtn.textContent = '🖼️ Attach image';
+  attachBtn.textContent = i18n.t('step1.attachImage');
 }
 
 // Downscale large images client-side so the upload payload stays small.
@@ -212,10 +235,10 @@ $('ctxClose').addEventListener('click', () => { contextCard.classList.add('hidde
 
 async function fetchContext() {
   const url = urlInput.value.trim();
-  if (!url) return setStatus('Paste a YouTube or Instagram URL first.', true);
+  if (!url) return setStatus(i18n.t('errors.pasteUrl'), true);
 
   fetchBtn.disabled = true;
-  fetchBtn.textContent = 'Fetching…';
+  fetchBtn.textContent = i18n.t('step1.fetching');
   setStatus('');
   try {
     const res = await fetch('/api/fetch-context', {
@@ -224,26 +247,30 @@ async function fetchContext() {
       body: JSON.stringify({ url }),
     });
     const data = await res.json();
-    if (!res.ok) { setStatus(data.error || 'Could not fetch context.', true); return; }
+    if (!res.ok) { setStatus(data.error || i18n.t('errors.couldNotFetchContext'), true); return; }
     if (data.needsManual) {
       contextCard.classList.add('hidden');
-      setStatus(data.message || 'Could not fetch automatically — paste the details manually.', true);
+      setStatus(data.message || i18n.t('errors.couldNotFetchAutoManual'), true);
       return;
     }
     renderContext(data);
     // load the compiled context into the message box (editable) so Generate uses it
     messageEl.value = data.contextText || '';
-    charCount.textContent = `${messageEl.value.length} / 5000 characters`;
-    // auto-select detected language if it's one of our options
+    charCount.textContent = i18n.t('step1.charCount', { count: messageEl.value.length, max: 5000 });
+    // auto-select detected language if it's one of our 100+ options
     if (data.detectedLanguage) {
       const opt = [...$('language').options].find((o) => o.value === data.detectedLanguage);
-      if (opt) $('language').value = data.detectedLanguage;
+      if (opt) {
+        $('language').value = data.detectedLanguage;
+        outputLangPicker?.setValue(data.detectedLanguage);
+        localStorage.setItem('are.outputLang', data.detectedLanguage);
+      }
     }
   } catch {
-    setStatus('Network error fetching context.', true);
+    setStatus(i18n.t('errors.networkErrorContext'), true);
   } finally {
     fetchBtn.disabled = false;
-    fetchBtn.textContent = 'Fetch Context';
+    fetchBtn.textContent = i18n.t('step1.fetchContext');
   }
 }
 
@@ -357,7 +384,7 @@ async function copyText(text) {
 function styleBadge(style) {
   const span = document.createElement('span');
   span.className = `badge ${STYLE_CLASS[style] || 's-short'}`;
-  span.textContent = style;
+  span.textContent = styleLabel(style);
   return span;
 }
 
@@ -368,9 +395,10 @@ function makeCard(reply) {
 
   const head = document.createElement('div');
   head.className = 'card-head';
+  const PERSP_I18N_KEY = { Supporter: 'step4.supporter', Opposition: 'step4.opposition', Neutral: 'step4.neutral' };
   const persp = document.createElement('span');
   persp.className = 'badge persp';
-  persp.textContent = reply.perspective;
+  persp.textContent = i18n.t(PERSP_I18N_KEY[reply.perspective] || 'step4.neutral');
   head.append(styleBadge(reply.style), persp);
 
   const text = document.createElement('p');
@@ -380,26 +408,26 @@ function makeCard(reply) {
   const actions = document.createElement('div');
   actions.className = 'card-actions';
 
-  const copyBtn = mkAct('⧉ Copy');
+  const copyBtn = mkAct(i18n.t('card.copy'));
   copyBtn.addEventListener('click', async () => {
     await copyText(reply.text);
     sendFeedback('copy', reply);
-    copyBtn.textContent = '✓ Copied';
+    copyBtn.textContent = i18n.t('card.copied');
     copyBtn.classList.add('copied');
-    setTimeout(() => { copyBtn.textContent = '⧉ Copy'; copyBtn.classList.remove('copied'); }, 1400);
+    setTimeout(() => { copyBtn.textContent = i18n.t('card.copy'); copyBtn.classList.remove('copied'); }, 1400);
   });
 
-  const regenBtn = mkAct('↻ Regenerate');
+  const regenBtn = mkAct(i18n.t('card.regenerate'));
   regenBtn.addEventListener('click', () => regenerate(reply.id, regenBtn));
 
-  const saveBtn = mkAct(isSaved(reply.text) ? '★ Saved' : '☆ Save');
+  const saveBtn = mkAct(isSaved(reply.text) ? i18n.t('card.saved') : i18n.t('card.save'));
   if (isSaved(reply.text)) saveBtn.classList.add('saved');
   saveBtn.addEventListener('click', () => {
     const now = toggleSaved(reply);
-    saveBtn.textContent = now ? '★ Saved' : '☆ Save';
+    saveBtn.textContent = now ? i18n.t('card.saved') : i18n.t('card.save');
     saveBtn.classList.toggle('saved', now);
     sendFeedback(now ? 'save' : 'unsave', reply);
-    toast(now ? 'Saved' : 'Removed from saved');
+    toast(now ? i18n.t('toast.saved') : i18n.t('toast.removedFromSaved'));
   });
 
   const up = mkAct('👍'); up.classList.add('useful', 'spacer');
@@ -443,16 +471,16 @@ function renderResults() {
   resultsEl.innerHTML = '';
   const list = visibleReplies();
   if (list.length === 0) {
-    resultsEl.innerHTML = '<p class="muted" style="text-align:center;padding:20px">No replies match your search.</p>';
+    resultsEl.innerHTML = `<p class="muted" style="text-align:center;padding:20px">${i18n.t('results.noMatch')}</p>`;
   } else {
     list.forEach((r) => resultsEl.appendChild(makeCard(r)));
   }
-  resultsTitle.textContent = `AI Generated Replies (${replies.length})`;
+  resultsTitle.textContent = i18n.t('results.titleTemplate', { count: replies.length });
   // refresh style filter options
   const styles = [...new Set(replies.map((r) => r.style))].sort();
   const current = filterStyle.value;
-  filterStyle.innerHTML = '<option value="">All Styles</option>' +
-    styles.map((s) => `<option value="${s}">${s}</option>`).join('');
+  filterStyle.innerHTML = `<option value="">${i18n.t('results.allStyles')}</option>` +
+    styles.map((s) => `<option value="${s}">${styleLabel(s)}</option>`).join('');
   filterStyle.value = current;
 }
 
@@ -463,7 +491,7 @@ function showResults() { emptyState.classList.add('hidden'); resultsWrap.classLi
 function showSkeletons(n) {
   showResults();
   resultsEl.innerHTML = '';
-  resultsTitle.textContent = 'Generating…';
+  resultsTitle.textContent = i18n.t('results.generating');
   for (let i = 0; i < Math.min(n, 6); i++) {
     const c = document.createElement('div');
     c.className = 'card skeleton';
@@ -475,19 +503,19 @@ function showSkeletons(n) {
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const p = readForm();
-  if (!p.message && !p.image) return setStatus('Paste a message or attach an image first.', true);
-  if (p.styles.length === 0) return setStatus('Select at least one reply style.', true);
+  if (!p.message && !p.image) return setStatus(i18n.t('errors.pasteMessageOrImage'), true);
+  if (p.styles.length === 0) return setStatus(i18n.t('errors.selectStyle'), true);
 
   // daily free-limit check (do NOT call the API if it would exceed today's free replies)
   const left = remaining();
   if (left <= 0) { updateUsageUI(); return; }
   if (p.count > left) {
-    return setStatus(`You have only ${left} free repl${left === 1 ? 'y' : 'ies'} left today. Please select ${left} or fewer replies, or top up.`, true);
+    return setStatus(i18n.t(left === 1 ? 'errors.onlyLeftOne' : 'errors.onlyLeftMany', { left }), true);
   }
 
   lastParams = { message: p.message, image: p.image, perspective: p.perspective, language: p.language };
   generateBtn.disabled = true;
-  setStatus(`Generating ${p.count} replies…`);
+  setStatus(i18n.t('generate.generatingCount', { count: p.count }));
   showSkeletons(p.count);
 
   try {
@@ -497,7 +525,7 @@ form.addEventListener('submit', async (e) => {
       body: JSON.stringify(p),
     });
     const data = await res.json();
-    if (!res.ok) { setStatus(data.error || 'Something went wrong.', true); resultsEl.innerHTML = ''; resultsTitle.textContent = 'AI Generated Replies (0)'; return; }
+    if (!res.ok) { setStatus(data.error || i18n.t('errors.somethingWrong'), true); resultsEl.innerHTML = ''; resultsTitle.textContent = i18n.t('results.titleTemplate', { count: 0 }); return; }
 
     replies = data.replies.map((r) => ({ ...r, id: ++idSeq, seq: idSeq }));
     renderResults();
@@ -505,7 +533,7 @@ form.addEventListener('submit', async (e) => {
     clearInputs(); // clear the message / URL / image after generating
     if (remaining() > 0) setStatus('');
   } catch {
-    setStatus('Network error — is the server running?', true);
+    setStatus(i18n.t('errors.networkErrorGenerate'), true);
     resultsEl.innerHTML = '';
   } finally {
     updateUsageUI();
@@ -516,9 +544,9 @@ form.addEventListener('submit', async (e) => {
 async function regenerate(id, btn) {
   const idx = replies.findIndex((r) => r.id === id);
   if (idx === -1 || !lastParams) return;
-  if (remaining() < 1) { toast('Daily free limit reached. Top up to generate more.'); return; }
+  if (remaining() < 1) { toast(i18n.t('toast.dailyLimitReached')); return; }
   const original = btn.textContent;
-  btn.textContent = '↻ …';
+  btn.textContent = i18n.t('card.regenerating');
   btn.disabled = true;
   try {
     const res = await fetch('/api/regenerate', {
@@ -527,12 +555,12 @@ async function regenerate(id, btn) {
       body: JSON.stringify({ ...lastParams, style: replies[idx].style }),
     });
     const data = await res.json();
-    if (!res.ok) { toast(data.error || 'Regenerate failed'); return; }
+    if (!res.ok) { toast(data.error || i18n.t('toast.regenerateFailed')); return; }
     replies[idx] = { ...replies[idx], text: data.reply.text, perspective: data.reply.perspective };
     renderResults();
     addUsed(1); // a regenerated reply counts toward the daily limit
   } catch {
-    toast('Network error');
+    toast(i18n.t('toast.networkError'));
   } finally {
     btn.textContent = original;
     btn.disabled = false;
@@ -547,7 +575,7 @@ $('copyAll').addEventListener('click', async () => {
   const text = visibleReplies().map((r) => `[${r.style} • ${r.perspective}]\n${r.text}`).join('\n\n');
   if (!text) return;
   await copyText(text);
-  toast('All replies copied');
+  toast(i18n.t('toast.allRepliesCopied'));
 });
 $('exportTxt').addEventListener('click', () => {
   const text = visibleReplies().map((r) => `[${r.style} • ${r.perspective}]\n${r.text}`).join('\n\n');
@@ -612,16 +640,16 @@ async function handleGoogleCredential(response) {
       body: JSON.stringify({ credential: response.credential, refCode }),
     });
     const data = await r.json();
-    if (!r.ok) { toast(data.error || 'Sign-in failed.', 3200); return; }
+    if (!r.ok) { toast(data.error || i18n.t('toast.signInFailed'), 3200); return; }
     localStorage.removeItem('are.ref'); // referral consumed (or not applicable) — don't reuse
     showSignedIn(data.user);
     if (data.isNew) {
-      toast(`🎉 Welcome! You have received ${data.user.bonusBalance} free AI replies.`, 4200);
+      toast(i18n.t('toast.welcomeBonus', { n: data.user.bonusBalance }), 4200);
     } else {
-      toast(`Signed in as ${data.user.name || data.user.email}`);
+      toast(i18n.t('toast.signedInAs', { name: data.user.name || data.user.email }));
     }
   } catch {
-    toast('Could not reach the server for sign-in.', 3200);
+    toast(i18n.t('toast.couldNotReachServer'), 3200);
   }
 }
 
@@ -629,7 +657,7 @@ async function signOut() {
   try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
   if (window.google?.accounts?.id) google.accounts.id.disableAutoSelect();
   showSignedOut();
-  toast('Signed out');
+  toast(i18n.t('toast.signedOut'));
 }
 $('signOutBtn').addEventListener('click', signOut);
 
@@ -679,3 +707,77 @@ async function initAuth() {
 }
 
 initAuth();
+
+// ===== Re-render dynamic (JS-generated) text whenever the interface language changes =====
+// Static HTML text (data-i18n attributes) is handled by i18n.js itself; this covers the pieces
+// app.js writes directly: usage counter, char counter, attach-image button, and any already-
+// rendered result cards / style filter (renderResults() rebuilds them with translated labels).
+i18n.onChange(() => {
+  updateUsageUI();
+  charCount.textContent = i18n.t('step1.charCount', { count: messageEl.value.length, max: 5000 });
+  attachBtn.textContent = attachedImage ? i18n.t('step1.changeImage') : i18n.t('step1.attachImage');
+  if (!resultsWrap.classList.contains('hidden')) renderResults();
+});
+
+// ===== Language pickers (100+ languages each; two fully independent selections) =====
+// Interface language (window.i18n, persisted as are.uiLang) waits for i18n.js to finish loading
+// languages.json so the picker shows real flags/native names instead of the single-entry fallback.
+i18n.ready.then(() => {
+  const uiPicker = createLangPicker($('uiLanguagePicker'), {
+    items: i18n.getLanguages(),
+    valueKey: 'code',
+    initialValue: i18n.getLanguage(),
+    onSelect: (item) => i18n.setLanguage(item.code),
+    searchPlaceholder: i18n.t('langPicker.searchPlaceholder'),
+    buttonTitle: i18n.t('langPicker.uiLanguageTitle'),
+    popularLabel: i18n.t('langPicker.popular'),
+    allLabel: i18n.t('langPicker.allLanguages'),
+    noMatchLabel: i18n.t('langPicker.noMatches'),
+  });
+  // Re-translate both pickers' own chrome (search placeholder, group labels) on every switch.
+  i18n.onChange(() => {
+    const labels = {
+      searchPlaceholder: i18n.t('langPicker.searchPlaceholder'),
+      popularLabel: i18n.t('langPicker.popular'),
+      allLabel: i18n.t('langPicker.allLanguages'),
+      noMatchLabel: i18n.t('langPicker.noMatches'),
+    };
+    uiPicker.setLabels({ ...labels, buttonTitle: i18n.t('langPicker.uiLanguageTitle') });
+    outputLangPicker?.setLabels({ ...labels, buttonTitle: i18n.t('langPicker.outputLanguageTitle') });
+  });
+});
+
+// Reply output language (what the AI writes replies in) — separate data file, separate
+// localStorage key (are.outputLang), independent of the interface language above.
+(async function initOutputLanguagePicker() {
+  let items;
+  try {
+    const [data] = await Promise.all([
+      (await fetch('/i18n/output-languages.json')).json(),
+      i18n.ready, // wait so the picker's own chrome (search/labels) is translated from the start
+    ]);
+    items = data;
+  } catch {
+    return; // picker just won't render; the hidden <select> still has no options either way
+  }
+  const hiddenSelect = $('language');
+  hiddenSelect.innerHTML = items.map((l) => `<option value="${l.name}">${l.name}</option>`).join('');
+  const saved = localStorage.getItem('are.outputLang');
+  const initial = items.some((l) => l.name === saved) ? saved : 'Tamil';
+  hiddenSelect.value = initial;
+
+  outputLangPicker = createLangPicker($('outputLanguagePicker'), {
+    items,
+    valueKey: 'name',
+    initialValue: initial,
+    onSelect: (item) => {
+      hiddenSelect.value = item.name;
+      localStorage.setItem('are.outputLang', item.name);
+    },
+    searchPlaceholder: i18n.t('langPicker.searchPlaceholder'),
+    buttonTitle: i18n.t('langPicker.outputLanguageTitle'),
+    popularLabel: i18n.t('langPicker.popular'),
+    allLabel: i18n.t('langPicker.allLanguages'),
+    noMatchLabel: i18n.t('langPicker.noMatches'),
+  });
+})();

@@ -1,0 +1,148 @@
+{
+  "langPicker": {
+    "searchPlaceholder": "மொழிகளைத் தேடு...",
+    "popular": "பிரபலமானவை",
+    "allLanguages": "அனைத்து மொழிகள்",
+    "noMatches": "பொருத்தங்கள் இல்லை",
+    "uiLanguageTitle": "இடைமுக மொழி",
+    "outputLanguageTitle": "வெளியீட்டு மொழி"
+  },
+  "nav": {
+    "brandName": "AI ரிப்ளை அசிஸ்டன்ட்",
+    "home": "முகப்பு",
+    "recent": "சமீபத்தியவை",
+    "saved": "சேமித்த பதில்கள்",
+    "settings": "அமைப்புகள்",
+    "comingSoon": "“{name}” அடுத்த அப்டேட்டில் வரும்.",
+    "themeToggleTitle": "லைட் / டார்க் மோடு மாற்று",
+    "interfaceLanguageTitle": "இடைமுக மொழி",
+    "signOut": "வெளியேறு",
+    "adminTitle": "நிர்வாக பகுப்பாய்வு",
+    "adminName": "நிர்வாகி"
+  },
+  "step1": {
+    "title": "மெசேஜ் அல்லது URL ஒட்டவும்",
+    "urlPlaceholder": "…அல்லது YouTube / Instagram URL ஒட்டவும்",
+    "fetchContext": "விவரம் பெறு",
+    "fetching": "பெறப்படுகிறது…",
+    "clearContextTitle": "விவரத்தை அழி",
+    "messagePlaceholder": "எந்த மெசேஜ், கேள்வி, செய்தி, கமெண்ட், ஈமெயில் அல்லது உரையாடலையும் இங்கே ஒட்டவும் — அல்லது மேலே ஒரு URL-லிருந்து விவரம் பெறவும்.",
+    "charCount": "{count} / {max} எழுத்துகள்",
+    "clearBtn": "⟲ அழி",
+    "attachImage": "🖼️ படம் இணை",
+    "changeImage": "🖼️ படத்தை மாற்று",
+    "attachHint": "பதிவேற்றவும் அல்லது ஸ்கிரீன்ஷாட்டை ஒட்டவும் (Ctrl+V) — Instagram / Facebook / X போஸ்ட்கள் சிறப்பாக வேலை செய்யும்",
+    "removeImageTitle": "படத்தை நீக்கு"
+  },
+  "step2": {
+    "title": "வெளியீட்டு மொழி",
+    "optgroupCommon": "பொதுவானவை",
+    "optgroupIndian": "இந்திய மொழிகள்",
+    "optgroupWorld": "உலக மொழிகள்"
+  },
+  "step3": {
+    "title": "பதில்களின் எண்ணிக்கை",
+    "countOne": "{n} பதில்",
+    "countMany": "{n} பதில்கள்"
+  },
+  "step4": {
+    "title": "கண்ணோட்டம்",
+    "all": "அனைத்தும்",
+    "supporter": "ஆதரவு",
+    "opposition": "எதிர்ப்பு",
+    "neutral": "நடுநிலை"
+  },
+  "step5": {
+    "title": "ரிப்ளை ஸ்டைல்கள்",
+    "hint": "(குறைந்தது ஒன்றைத் தேர்ந்தெடுக்கவும்)",
+    "styleFriend": "நண்பன்",
+    "styleCasualChat": "காஷுவல் சாட்",
+    "styleAngry": "கோபம்",
+    "styleComedy": "நகைச்சுவை",
+    "styleSarcastic": "கிண்டல்",
+    "styleSavage": "சேவேஜ்",
+    "styleTroll": "டிரோல்",
+    "styleRespectful": "மரியாதை",
+    "styleProfessional": "தொழில்முறை",
+    "styleRomantic": "காதல்",
+    "styleCute": "க்யூட்",
+    "styleEmotional": "சோகம் / உணர்ச்சி",
+    "styleMotivational": "உத்வேகம்",
+    "styleMassHero": "ஹீரோ / மாஸ்",
+    "styleCinemaDialogue": "சினிமா டயலாக்",
+    "styleVillain": "வில்லன்",
+    "styleMystery": "மர்மம்",
+    "stylePunchDialogue": "பஞ்ச் டயலாக்",
+    "styleSmsShort": "SMS / சிறு பதில்",
+    "styleAiRobot": "AI / ரோபோ"
+  },
+  "generate": {
+    "button": "⚡ AI பதில்களை உருவாக்கு",
+    "usageCounter": "இன்றைய இலவச பதில்கள்: {left} / {limit} மீதம்",
+    "topUp": "டாப் அப்",
+    "dailyLimitTitle": "தினசரி இலவச வரம்பு முடிந்தது",
+    "dailyLimitStatus": "தினசரி இலவச வரம்பு முடிந்தது. மேலும் பதில்கள் பெற டாப் அப் செய்யவும்.",
+    "topUpComingSoon": "டாப்-அப் ஃபீச்சர் விரைவில் வரும்.",
+    "generatingCount": "{count} பதில்கள் உருவாக்கப்படுகின்றன…"
+  },
+  "empty": {
+    "title": "உங்கள் AI பதில்கள் இங்கே தோன்றும்",
+    "desc": "உங்கள் மெசேஜை ஒட்டி, விருப்பங்களைத் தேர்ந்தெடுத்து “AI பதில்களை உருவாக்கு” என்பதை கிளிக் செய்யவும்.",
+    "tipTitle": "💡 குறிப்பு",
+    "tipDesc": "சிறந்த முடிவுகளுக்கு உங்கள் மெசேஜில் தெளிவாக இருங்கள்.",
+    "quickStartTitle": "🚀 விரைவு தொடக்கம்",
+    "quickStartDesc": "ஒட்டவும் → ஸ்டைல்களைத் தேர்ந்தெடுக்கவும் → உருவாக்கவும் → பிடித்த பதில்களை காபி செய்யவும்"
+  },
+  "results": {
+    "titleTemplate": "AI உருவாக்கிய பதில்கள் ({count})",
+    "generating": "உருவாக்கப்படுகிறது…",
+    "searchPlaceholder": "பதில்களைத் தேடு...",
+    "allStyles": "அனைத்து ஸ்டைல்கள்",
+    "sortNewest": "புதியவை",
+    "sortOldest": "பழையவை",
+    "sortByStyle": "ஸ்டைல் படி",
+    "noMatch": "உங்கள் தேடலுக்கு பொருந்தும் பதில்கள் இல்லை.",
+    "copyAll": "⧉ அனைத்தையும் காபி செய்",
+    "exportTxt": "⬇ TXT ஏற்றுமதி",
+    "exportCsv": "⬇ CSV ஏற்றுமதி"
+  },
+  "card": {
+    "copy": "⧉ காபி",
+    "copied": "✓ காபி ஆனது",
+    "regenerate": "↻ மீண்டும் உருவாக்கு",
+    "regenerating": "↻ …",
+    "save": "☆ சேமி",
+    "saved": "★ சேமிக்கப்பட்டது"
+  },
+  "toast": {
+    "imagePasted": "படம் ஒட்டப்பட்டது ✓",
+    "saved": "சேமிக்கப்பட்டது",
+    "removedFromSaved": "சேமிப்பிலிருந்து நீக்கப்பட்டது",
+    "allRepliesCopied": "அனைத்து பதில்களும் காபி ஆனது",
+    "signedInAs": "{name} ஆக உள்நுழைந்துள்ளீர்கள்",
+    "welcomeBonus": "🎉 வரவேற்கிறோம்! {n} இலவச AI பதில்கள் கிடைத்துள்ளன.",
+    "signInFailed": "உள்நுழைவு தோல்வியடைந்தது.",
+    "couldNotReachServer": "உள்நுழைவுக்கு சர்வரை அணுக முடியவில்லை.",
+    "signedOut": "வெளியேறிவிட்டீர்கள்",
+    "regenerateFailed": "மீண்டும் உருவாக்குவது தோல்வியடைந்தது",
+    "networkError": "நெட்வொர்க் பிழை",
+    "dailyLimitReached": "தினசரி இலவச வரம்பு முடிந்தது. மேலும் பெற டாப் அப் செய்யவும்."
+  },
+  "errors": {
+    "pasteMessageOrImage": "முதலில் ஒரு மெசேஜை ஒட்டவும் அல்லது படத்தை இணைக்கவும்.",
+    "selectStyle": "குறைந்தது ஒரு ரிப்ளை ஸ்டைலைத் தேர்ந்தெடுக்கவும்.",
+    "onlyLeftOne": "இன்று உங்களிடம் {left} இலவச பதில் மட்டுமே உள்ளது. {left} அல்லது அதற்கும் குறைவான பதில்களைத் தேர்ந்தெடுக்கவும், அல்லது டாப் அப் செய்யவும்.",
+    "onlyLeftMany": "இன்று உங்களிடம் {left} இலவச பதில்கள் மட்டுமே உள்ளன. {left} அல்லது அதற்கும் குறைவான பதில்களைத் தேர்ந்தெடுக்கவும், அல்லது டாப் அப் செய்யவும்.",
+    "somethingWrong": "ஏதோ தவறு நடந்தது.",
+    "networkErrorGenerate": "நெட்வொர்க் பிழை — சர்வர் இயங்குகிறதா?",
+    "pasteUrl": "முதலில் ஒரு YouTube அல்லது Instagram URL ஒட்டவும்.",
+    "couldNotFetchContext": "விவரத்தைப் பெற முடியவில்லை.",
+    "couldNotFetchAutoManual": "தானாகப் பெற முடியவில்லை — விவரங்களை நேரடியாக ஒட்டவும்.",
+    "networkErrorContext": "விவரம் பெறுவதில் நெட்வொர்க் பிழை.",
+    "chooseImageFile": "ஒரு படக் கோப்பைத் தேர்ந்தெடுக்கவும்.",
+    "couldNotReadImage": "அந்தப் படத்தைப் படிக்க முடியவில்லை. வேறு கோப்பை முயற்சிக்கவும்."
+  },
+  "footer": {
+    "text": "AI உருவாக்கிய பரிந்துரைகள் — போஸ்ட் செய்வதற்கு முன் சரிபார்க்கவும். இந்த இன்ஜின் உண்மைகளை கற்பனை செய்யாதவாறு வழிநடத்தப்பட்டுள்ளது; உரிமைகோரல்களை எப்போதும் நீங்களே சரிபார்க்கவும்."
+  }
+}

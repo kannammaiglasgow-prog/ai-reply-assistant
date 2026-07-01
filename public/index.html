@@ -14,18 +14,20 @@
   <header class="topbar">
     <div class="brand">
       <span class="brand-logo" aria-hidden="true">🤖</span>
-      <span class="brand-name">AI Reply Assistant</span>
+      <span class="brand-name" data-i18n="nav.brandName">AI Reply Assistant</span>
     </div>
 
     <nav class="nav">
-      <a href="#" class="nav-link active" data-tab="Home">Home</a>
-      <a href="#" class="nav-link" data-tab="Recent">Recent</a>
-      <a href="#" class="nav-link" data-tab="Saved Replies">Saved Replies</a>
-      <a href="#" class="nav-link" data-tab="Settings">Settings</a>
+      <a href="#" class="nav-link active" data-tab="Home" data-i18n="nav.home">Home</a>
+      <a href="#" class="nav-link" data-tab="Recent" data-i18n="nav.recent">Recent</a>
+      <a href="#" class="nav-link" data-tab="Saved Replies" data-i18n="nav.saved">Saved Replies</a>
+      <a href="#" class="nav-link" data-tab="Settings" data-i18n="nav.settings">Settings</a>
     </nav>
 
     <div class="topbar-right">
-      <button id="themeToggle" class="icon-btn" title="Toggle light / dark" aria-label="Toggle theme">☀️</button>
+      <div id="uiLanguagePicker" class="lang-picker-slot" data-i18n-title="nav.interfaceLanguageTitle" title="Interface language"></div>
+
+      <button id="themeToggle" class="icon-btn" data-i18n-title="nav.themeToggleTitle" title="Toggle light / dark" aria-label="Toggle theme">☀️</button>
 
       <!-- Google Sign-In button renders here when signed out (Phase 2) -->
       <div id="googleSignin" class="gsi-slot"></div>
@@ -34,12 +36,12 @@
       <div id="userChip" class="user-chip" hidden>
         <img id="userAvatar" class="user-avatar" alt="" />
         <span id="userName" class="user-name"></span>
-        <button id="signOutBtn" class="link-btn" title="Sign out">Sign out</button>
+        <button id="signOutBtn" class="link-btn" data-i18n="nav.signOut" title="Sign out">Sign out</button>
       </div>
 
-      <a class="avatar-chip" href="admin.html" title="Admin analytics">
+      <a class="avatar-chip" href="admin.html" data-i18n-title="nav.adminTitle" title="Admin analytics">
         <span class="avatar">A</span>
-        <span class="avatar-name">Admin</span>
+        <span class="avatar-name" data-i18n="nav.adminName">Admin</span>
         <span class="caret">▾</span>
       </a>
     </div>
@@ -53,12 +55,12 @@
         <div class="block">
           <div class="block-head">
             <span class="step">1</span>
-            <h2>Paste Message or URL</h2>
+            <h2 data-i18n="step1.title">Paste Message or URL</h2>
           </div>
 
           <div class="url-row">
-            <input type="url" id="urlInput" placeholder="…or paste a YouTube / Instagram URL" />
-            <button type="button" id="fetchBtn" class="ghost-btn">Fetch Context</button>
+            <input type="url" id="urlInput" data-i18n-placeholder="step1.urlPlaceholder" placeholder="…or paste a YouTube / Instagram URL" />
+            <button type="button" id="fetchBtn" class="ghost-btn" data-i18n="step1.fetchContext">Fetch Context</button>
           </div>
 
           <!-- Context preview card (shown after Fetch Context) -->
@@ -66,7 +68,7 @@
             <div class="ctx-head">
               <span id="ctxPlatform" class="badge s-news">platform</span>
               <span id="ctxDetected" class="muted"></span>
-              <button type="button" id="ctxClose" class="remove-img" title="Clear context">✕</button>
+              <button type="button" id="ctxClose" class="remove-img" data-i18n-title="step1.clearContextTitle" title="Clear context">✕</button>
             </div>
             <div id="ctxTitle" class="ctx-title"></div>
             <div id="ctxMeta" class="muted ctx-meta"></div>
@@ -76,19 +78,20 @@
           </div>
 
           <textarea id="message" maxlength="5000" rows="6"
+            data-i18n-placeholder="step1.messagePlaceholder"
             placeholder="Paste any message, question, news, comment, email or conversation here — or fetch context from a URL above."></textarea>
           <div class="textarea-foot">
             <span id="charCount" class="muted">0 / 5000 characters</span>
-            <button type="button" id="clearBtn" class="ghost-btn">⟲ Clear</button>
+            <button type="button" id="clearBtn" class="ghost-btn" data-i18n="step1.clearBtn">⟲ Clear</button>
           </div>
 
           <div class="image-attach">
             <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
-            <button type="button" id="attachBtn" class="ghost-btn">🖼️ Attach image</button>
-            <span class="muted attach-hint">Upload or just paste (Ctrl+V) a screenshot — Instagram / Facebook / X posts work great</span>
+            <button type="button" id="attachBtn" class="ghost-btn" data-i18n="step1.attachImage">🖼️ Attach image</button>
+            <span class="muted attach-hint" data-i18n="step1.attachHint">Upload or just paste (Ctrl+V) a screenshot — Instagram / Facebook / X posts work great</span>
             <div id="imagePreview" class="image-preview hidden">
               <img id="previewImg" alt="attached preview" />
-              <button type="button" id="removeImageBtn" class="remove-img" title="Remove image">✕</button>
+              <button type="button" id="removeImageBtn" class="remove-img" data-i18n-title="step1.removeImageTitle" title="Remove image">✕</button>
             </div>
           </div>
         </div>
@@ -97,65 +100,24 @@
           <div>
             <div class="block-head">
               <span class="step">2</span>
-              <h2>Output Language</h2>
+              <h2 data-i18n="step2.title">Output Language</h2>
             </div>
-            <select id="language">
-              <optgroup label="Common">
-                <option value="Tamil" selected>Tamil</option>
-                <option value="English">English</option>
-                <option value="Tanglish">Tanglish (Tamil in English letters)</option>
-              </optgroup>
-              <optgroup label="Indian languages">
-                <option value="Hindi">Hindi</option>
-                <option value="Telugu">Telugu</option>
-                <option value="Kannada">Kannada</option>
-                <option value="Malayalam">Malayalam</option>
-                <option value="Marathi">Marathi</option>
-                <option value="Bengali">Bengali</option>
-                <option value="Gujarati">Gujarati</option>
-                <option value="Punjabi">Punjabi</option>
-                <option value="Urdu">Urdu</option>
-                <option value="Odia">Odia</option>
-                <option value="Assamese">Assamese</option>
-                <option value="Sinhala">Sinhala</option>
-                <option value="Nepali">Nepali</option>
-              </optgroup>
-              <optgroup label="World languages">
-                <option value="Spanish">Spanish</option>
-                <option value="French">French</option>
-                <option value="German">German</option>
-                <option value="Italian">Italian</option>
-                <option value="Portuguese">Portuguese</option>
-                <option value="Russian">Russian</option>
-                <option value="Arabic">Arabic</option>
-                <option value="Chinese">Chinese</option>
-                <option value="Japanese">Japanese</option>
-                <option value="Korean">Korean</option>
-                <option value="Indonesian">Indonesian</option>
-                <option value="Malay">Malay</option>
-                <option value="Turkish">Turkish</option>
-                <option value="Vietnamese">Vietnamese</option>
-                <option value="Thai">Thai</option>
-                <option value="Dutch">Dutch</option>
-                <option value="Polish">Polish</option>
-                <option value="Ukrainian">Ukrainian</option>
-                <option value="Persian">Persian</option>
-                <option value="Filipino">Filipino</option>
-                <option value="Swahili">Swahili</option>
-              </optgroup>
-            </select>
+            <!-- Real form control (kept for existing readForm()/fetchContext() logic); the
+                 searchable picker below is the visible UI and keeps this select in sync. -->
+            <select id="language" hidden></select>
+            <div id="outputLanguagePicker"></div>
           </div>
           <div>
             <div class="block-head">
               <span class="step">3</span>
-              <h2>Number of Replies</h2>
+              <h2 data-i18n="step3.title">Number of Replies</h2>
             </div>
             <select id="count">
-              <option value="1" selected>1 Reply</option>
-              <option value="3">3 Replies</option>
-              <option value="5">5 Replies</option>
-              <option value="10">10 Replies</option>
-              <option value="20">20 Replies</option>
+              <option value="1" selected data-i18n-count="1">1 Reply</option>
+              <option value="3" data-i18n-count="3">3 Replies</option>
+              <option value="5" data-i18n-count="5">5 Replies</option>
+              <option value="10" data-i18n-count="10">10 Replies</option>
+              <option value="20" data-i18n-count="20">20 Replies</option>
             </select>
           </div>
         </div>
@@ -163,40 +125,50 @@
         <div class="block">
           <div class="block-head">
             <span class="step">4</span>
-            <h2>Perspective</h2>
+            <h2 data-i18n="step4.title">Perspective</h2>
           </div>
           <div class="radio-row" id="perspective">
-            <label class="opt"><input type="radio" name="perspective" value="All" checked /> All</label>
-            <label class="opt"><input type="radio" name="perspective" value="Supporter" /> Supporter</label>
-            <label class="opt"><input type="radio" name="perspective" value="Opposition" /> Opposition</label>
-            <label class="opt"><input type="radio" name="perspective" value="Neutral" /> Neutral</label>
+            <label class="opt"><input type="radio" name="perspective" value="All" checked /> <span data-i18n="step4.all">All</span></label>
+            <label class="opt"><input type="radio" name="perspective" value="Supporter" /> <span data-i18n="step4.supporter">Supporter</span></label>
+            <label class="opt"><input type="radio" name="perspective" value="Opposition" /> <span data-i18n="step4.opposition">Opposition</span></label>
+            <label class="opt"><input type="radio" name="perspective" value="Neutral" /> <span data-i18n="step4.neutral">Neutral</span></label>
           </div>
         </div>
 
         <div class="block">
           <div class="block-head">
             <span class="step">5</span>
-            <h2>Reply Styles <small>(pick at least one)</small></h2>
+            <h2><span data-i18n="step5.title">Reply Styles</span> <small data-i18n="step5.hint">(pick at least one)</small></h2>
           </div>
           <div class="checkbox-grid" id="styles">
-            <label class="opt"><input type="checkbox" name="style" value="Comedy" /> Comedy</label>
-            <label class="opt"><input type="checkbox" name="style" value="Mass Hero" /> Mass Hero</label>
-            <label class="opt"><input type="checkbox" name="style" value="Smart" /> Smart</label>
-            <label class="opt"><input type="checkbox" name="style" value="Professional" /> Professional</label>
-            <label class="opt"><input type="checkbox" name="style" value="Friendly" /> Friendly</label>
-            <label class="opt"><input type="checkbox" name="style" value="Emotional" /> Emotional</label>
-            <label class="opt"><input type="checkbox" name="style" value="Debate" /> Debate</label>
-            <label class="opt"><input type="checkbox" name="style" value="Savage" /> Savage</label>
-            <label class="opt"><input type="checkbox" name="style" value="Meme" /> Meme</label>
-            <label class="opt"><input type="checkbox" name="style" value="News" /> News</label>
+            <label class="opt"><input type="checkbox" name="style" value="Friend" /> <span data-i18n="step5.styleFriend">Friend</span> 😊</label>
+            <label class="opt"><input type="checkbox" name="style" value="Casual Chat" /> <span data-i18n="step5.styleCasualChat">Casual Chat</span> 💬</label>
+            <label class="opt"><input type="checkbox" name="style" value="Angry" /> <span data-i18n="step5.styleAngry">Angry</span> 😡</label>
+            <label class="opt"><input type="checkbox" name="style" value="Comedy" /> <span data-i18n="step5.styleComedy">Funny / Comedy</span> 😂</label>
+            <label class="opt"><input type="checkbox" name="style" value="Sarcastic" /> <span data-i18n="step5.styleSarcastic">Sarcastic</span> 😏</label>
+            <label class="opt"><input type="checkbox" name="style" value="Savage" /> <span data-i18n="step5.styleSavage">Savage</span> 🔥</label>
+            <label class="opt"><input type="checkbox" name="style" value="Troll" /> <span data-i18n="step5.styleTroll">Troll</span> 🤣</label>
+            <label class="opt"><input type="checkbox" name="style" value="Respectful" /> <span data-i18n="step5.styleRespectful">Respectful</span> 🙏</label>
+            <label class="opt"><input type="checkbox" name="style" value="Professional" /> <span data-i18n="step5.styleProfessional">Professional</span> 💼</label>
+            <label class="opt"><input type="checkbox" name="style" value="Romantic" /> <span data-i18n="step5.styleRomantic">Romantic</span> ❤️</label>
+            <label class="opt"><input type="checkbox" name="style" value="Cute" /> <span data-i18n="step5.styleCute">Cute</span> 🥰</label>
+            <label class="opt"><input type="checkbox" name="style" value="Emotional" /> <span data-i18n="step5.styleEmotional">Sad / Emotional</span> 😢</label>
+            <label class="opt"><input type="checkbox" name="style" value="Motivational" /> <span data-i18n="step5.styleMotivational">Motivational</span> 💪</label>
+            <label class="opt"><input type="checkbox" name="style" value="Mass Hero" /> <span data-i18n="step5.styleMassHero">Hero / Mass</span> 😎</label>
+            <label class="opt"><input type="checkbox" name="style" value="Cinema Dialogue" /> <span data-i18n="step5.styleCinemaDialogue">Cinema Dialogue</span> 🎬</label>
+            <label class="opt"><input type="checkbox" name="style" value="Villain" /> <span data-i18n="step5.styleVillain">Villain</span> 😈</label>
+            <label class="opt"><input type="checkbox" name="style" value="Mystery" /> <span data-i18n="step5.styleMystery">Mystery</span> 🕵️</label>
+            <label class="opt"><input type="checkbox" name="style" value="Punch Dialogue" /> <span data-i18n="step5.stylePunchDialogue">Punch Dialogue</span> 💥</label>
+            <label class="opt"><input type="checkbox" name="style" value="SMS Short" /> <span data-i18n="step5.styleSmsShort">SMS / Short Reply</span> 📱</label>
+            <label class="opt"><input type="checkbox" name="style" value="AI Robot" /> <span data-i18n="step5.styleAiRobot">AI / Robot</span> 🤖</label>
           </div>
         </div>
 
-        <button type="submit" id="generateBtn" class="primary-btn">⚡ Generate AI Replies</button>
+        <button type="submit" id="generateBtn" class="primary-btn" data-i18n="generate.button">⚡ Generate AI Replies</button>
 
         <div class="usage-row">
           <span id="usageCounter" class="muted"></span>
-          <button type="button" id="topupBtn" class="ghost-btn hidden">Top Up</button>
+          <button type="button" id="topupBtn" class="ghost-btn hidden" data-i18n="generate.topUp">Top Up</button>
         </div>
       </form>
     </section>
@@ -206,16 +178,16 @@
       <!-- Empty state -->
       <div id="emptyState" class="empty-state">
         <div class="empty-icon">💬</div>
-        <h3>Your AI replies will appear here</h3>
-        <p class="muted">Paste your message, select options and click “Generate AI Replies” to get started.</p>
+        <h3 data-i18n="empty.title">Your AI replies will appear here</h3>
+        <p class="muted" data-i18n="empty.desc">Paste your message, select options and click “Generate AI Replies” to get started.</p>
         <div class="info-cards">
           <div class="info-card">
-            <strong>💡 Tip</strong>
-            <p class="muted">Be specific with your message for better results.</p>
+            <strong data-i18n="empty.tipTitle">💡 Tip</strong>
+            <p class="muted" data-i18n="empty.tipDesc">Be specific with your message for better results.</p>
           </div>
           <div class="info-card">
-            <strong>🚀 Quick Start</strong>
-            <p class="muted">Paste → Select Styles → Generate → Copy your favorite replies</p>
+            <strong data-i18n="empty.quickStartTitle">🚀 Quick Start</strong>
+            <p class="muted" data-i18n="empty.quickStartDesc">Paste → Select Styles → Generate → Copy your favorite replies</p>
           </div>
         </div>
       </div>
@@ -223,14 +195,14 @@
       <!-- Results -->
       <div id="resultsWrap" class="results-wrap hidden">
         <div class="results-head">
-          <h3 id="resultsTitle">AI Generated Replies</h3>
+          <h3 id="resultsTitle" data-i18n="results.titleTemplate">AI Generated Replies</h3>
           <div class="results-tools">
-            <input type="search" id="searchInput" placeholder="Search replies..." />
-            <select id="filterStyle"><option value="">All Styles</option></select>
+            <input type="search" id="searchInput" data-i18n-placeholder="results.searchPlaceholder" placeholder="Search replies..." />
+            <select id="filterStyle"><option value="" data-i18n="results.allStyles">All Styles</option></select>
             <select id="sortOrder">
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="style">By Style</option>
+              <option value="newest" data-i18n="results.sortNewest">Newest</option>
+              <option value="oldest" data-i18n="results.sortOldest">Oldest</option>
+              <option value="style" data-i18n="results.sortByStyle">By Style</option>
             </select>
           </div>
         </div>
@@ -238,9 +210,9 @@
         <div id="results" class="results"></div>
 
         <div class="results-foot">
-          <button type="button" id="copyAll" class="ghost-btn">⧉ Copy All</button>
-          <button type="button" id="exportTxt" class="ghost-btn">⬇ Export TXT</button>
-          <button type="button" id="exportCsv" class="ghost-btn">⬇ Export CSV</button>
+          <button type="button" id="copyAll" class="ghost-btn" data-i18n="results.copyAll">⧉ Copy All</button>
+          <button type="button" id="exportTxt" class="ghost-btn" data-i18n="results.exportTxt">⬇ Export TXT</button>
+          <button type="button" id="exportCsv" class="ghost-btn" data-i18n="results.exportCsv">⬇ Export CSV</button>
         </div>
       </div>
 
@@ -250,12 +222,15 @@
   </main>
 
   <footer class="site-footer">
-    <p class="muted">AI-generated suggestions — review before posting. The engine is instructed not to invent facts; always verify claims yourself.</p>
+    <p class="muted" data-i18n="footer.text">AI-generated suggestions — review before posting. The engine is instructed not to invent facts; always verify claims yourself.</p>
   </footer>
 
   <!-- toast -->
   <div id="toast" class="toast hidden"></div>
 
+  <!-- i18n engine (must load before app.js, which calls window.i18n.t()) -->
+  <script src="i18n.js"></script>
+  <script src="lang-picker.js"></script>
   <!-- Google Identity Services (Phase 2 login) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="app.js"></script>

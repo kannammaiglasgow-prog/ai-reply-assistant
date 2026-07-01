@@ -1,0 +1,148 @@
+{
+  "langPicker": {
+    "searchPlaceholder": "ابحث عن اللغات...",
+    "popular": "شائعة",
+    "allLanguages": "كل اللغات",
+    "noMatches": "لا توجد نتائج",
+    "uiLanguageTitle": "لغة الواجهة",
+    "outputLanguageTitle": "لغة الإخراج"
+  },
+  "nav": {
+    "brandName": "مساعد الردود الذكي",
+    "home": "الرئيسية",
+    "recent": "الأخيرة",
+    "saved": "الردود المحفوظة",
+    "settings": "الإعدادات",
+    "comingSoon": "سيتوفر “{name}” في التحديث القادم.",
+    "themeToggleTitle": "تبديل الوضع الفاتح / الداكن",
+    "interfaceLanguageTitle": "لغة الواجهة",
+    "signOut": "تسجيل الخروج",
+    "adminTitle": "تحليلات المسؤول",
+    "adminName": "المسؤول"
+  },
+  "step1": {
+    "title": "الصق رسالة أو رابطًا",
+    "urlPlaceholder": "…أو الصق رابط YouTube / Instagram",
+    "fetchContext": "جلب السياق",
+    "fetching": "جارٍ الجلب…",
+    "clearContextTitle": "مسح السياق",
+    "messagePlaceholder": "الصق هنا أي رسالة أو سؤال أو خبر أو تعليق أو بريد إلكتروني أو محادثة — أو اجلب السياق من رابط أعلاه.",
+    "charCount": "{count} / {max} حرفًا",
+    "clearBtn": "⟲ مسح",
+    "attachImage": "🖼️ إرفاق صورة",
+    "changeImage": "🖼️ تغيير الصورة",
+    "attachHint": "ارفع أو الصق لقطة شاشة (Ctrl+V) — منشورات Instagram / Facebook / X تعمل بشكل رائع",
+    "removeImageTitle": "إزالة الصورة"
+  },
+  "step2": {
+    "title": "لغة الإخراج",
+    "optgroupCommon": "شائعة",
+    "optgroupIndian": "اللغات الهندية",
+    "optgroupWorld": "لغات العالم"
+  },
+  "step3": {
+    "title": "عدد الردود",
+    "countOne": "{n} رد",
+    "countMany": "{n} ردود"
+  },
+  "step4": {
+    "title": "وجهة النظر",
+    "all": "الكل",
+    "supporter": "مؤيد",
+    "opposition": "معارض",
+    "neutral": "محايد"
+  },
+  "step5": {
+    "title": "أنماط الرد",
+    "hint": "(اختر واحدًا على الأقل)",
+    "styleFriend": "صديق",
+    "styleCasualChat": "دردشة عادية",
+    "styleAngry": "غاضب",
+    "styleComedy": "مضحك / كوميدي",
+    "styleSarcastic": "ساخر",
+    "styleSavage": "لاذع",
+    "styleTroll": "مستفز",
+    "styleRespectful": "محترم",
+    "styleProfessional": "احترافي",
+    "styleRomantic": "رومانسي",
+    "styleCute": "لطيف",
+    "styleEmotional": "حزين / عاطفي",
+    "styleMotivational": "تحفيزي",
+    "styleMassHero": "بطولي",
+    "styleCinemaDialogue": "حوار سينمائي",
+    "styleVillain": "شرير",
+    "styleMystery": "غامض",
+    "stylePunchDialogue": "رد قوي ومختصر",
+    "styleSmsShort": "رسالة قصيرة",
+    "styleAiRobot": "AI / روبوت"
+  },
+  "generate": {
+    "button": "⚡ إنشاء ردود AI",
+    "usageCounter": "الردود المجانية اليوم: تبقّى {left} / {limit}",
+    "topUp": "شحن الرصيد",
+    "dailyLimitTitle": "تم الوصول إلى الحد المجاني اليومي",
+    "dailyLimitStatus": "تم الوصول إلى الحد المجاني اليومي. يرجى شحن الرصيد لإنشاء المزيد من الردود.",
+    "topUpComingSoon": "ميزة الشحن قادمة قريبًا.",
+    "generatingCount": "جارٍ إنشاء {count} ردود…"
+  },
+  "empty": {
+    "title": "ستظهر ردود AI الخاصة بك هنا",
+    "desc": "الصق رسالتك، اختر الخيارات، وانقر على “إنشاء ردود AI” للبدء.",
+    "tipTitle": "💡 نصيحة",
+    "tipDesc": "كن محددًا في رسالتك للحصول على نتائج أفضل.",
+    "quickStartTitle": "🚀 بداية سريعة",
+    "quickStartDesc": "الصق ← اختر الأنماط ← أنشئ ← انسخ ردودك المفضلة"
+  },
+  "results": {
+    "titleTemplate": "ردود AI المُنشأة ({count})",
+    "generating": "جارٍ الإنشاء…",
+    "searchPlaceholder": "ابحث في الردود...",
+    "allStyles": "كل الأنماط",
+    "sortNewest": "الأحدث",
+    "sortOldest": "الأقدم",
+    "sortByStyle": "حسب النمط",
+    "noMatch": "لا توجد ردود مطابقة لبحثك.",
+    "copyAll": "⧉ نسخ الكل",
+    "exportTxt": "⬇ تصدير TXT",
+    "exportCsv": "⬇ تصدير CSV"
+  },
+  "card": {
+    "copy": "⧉ نسخ",
+    "copied": "✓ تم النسخ",
+    "regenerate": "↻ إعادة الإنشاء",
+    "regenerating": "↻ …",
+    "save": "☆ حفظ",
+    "saved": "★ محفوظ"
+  },
+  "toast": {
+    "imagePasted": "تم لصق الصورة ✓",
+    "saved": "تم الحفظ",
+    "removedFromSaved": "تمت الإزالة من المحفوظات",
+    "allRepliesCopied": "تم نسخ جميع الردود",
+    "signedInAs": "تم تسجيل الدخول باسم {name}",
+    "welcomeBonus": "🎉 مرحبًا! لقد حصلت على {n} ردود AI مجانية.",
+    "signInFailed": "فشل تسجيل الدخول.",
+    "couldNotReachServer": "تعذّر الوصول إلى الخادم لتسجيل الدخول.",
+    "signedOut": "تم تسجيل الخروج",
+    "regenerateFailed": "فشلت إعادة الإنشاء",
+    "networkError": "خطأ في الشبكة",
+    "dailyLimitReached": "تم الوصول إلى الحد المجاني اليومي. اشحن رصيدك للحصول على المزيد."
+  },
+  "errors": {
+    "pasteMessageOrImage": "الصق رسالة أو أرفق صورة أولاً.",
+    "selectStyle": "اختر نمط رد واحدًا على الأقل.",
+    "onlyLeftOne": "تبقّى لديك اليوم {left} رد مجاني فقط. يرجى اختيار {left} ردود أو أقل، أو شحن رصيدك.",
+    "onlyLeftMany": "تبقّى لديك اليوم {left} ردود مجانية فقط. يرجى اختيار {left} ردود أو أقل، أو شحن رصيدك.",
+    "somethingWrong": "حدث خطأ ما.",
+    "networkErrorGenerate": "خطأ في الشبكة — هل الخادم يعمل؟",
+    "pasteUrl": "الصق رابط YouTube أو Instagram أولاً.",
+    "couldNotFetchContext": "تعذّر جلب السياق.",
+    "couldNotFetchAutoManual": "تعذّر الجلب تلقائيًا — الصق التفاصيل يدويًا.",
+    "networkErrorContext": "خطأ في الشبكة أثناء جلب السياق.",
+    "chooseImageFile": "يرجى اختيار ملف صورة.",
+    "couldNotReadImage": "تعذّر قراءة تلك الصورة. جرّب ملفًا آخر."
+  },
+  "footer": {
+    "text": "اقتراحات مُنشأة بالذكاء الاصطناعي — راجعها قبل النشر. تم توجيه النظام بعدم اختلاق حقائق؛ تحقق دائمًا من الادعاءات بنفسك."
+  }
+}

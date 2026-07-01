@@ -22,16 +22,36 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = process.env.PORT || 3000;
 
-// Which AI generates replies: "openai" or "gemini"
+// Which AI generates replies: "openai", "gemini", "minimax", or "openrouter"
 const PROVIDER = (process.env.PROVIDER || 'openai').toLowerCase();
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-pro';
-const ACTIVE_MODEL = PROVIDER === 'gemini' ? GEMINI_MODEL : OPENAI_MODEL;
+const MINIMAX_MODEL = process.env.MINIMAX_MODEL || 'MiniMax-Text-01';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'minimax/minimax-01';
+const ACTIVE_MODEL =
+  PROVIDER === 'gemini' ? GEMINI_MODEL
+  : PROVIDER === 'minimax' ? MINIMAX_MODEL
+  : PROVIDER === 'openrouter' ? OPENROUTER_MODEL
+  : OPENAI_MODEL;
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// MiniMax's chat API is OpenAI-compatible, so we reuse the OpenAI SDK with its base URL.
+// International endpoint: https://api.minimax.io/v1 (mainland China accounts use api.minimaxi.com).
+const minimax = new OpenAI({
+  apiKey: process.env.MINIMAX_API_KEY,
+  baseURL: process.env.MINIMAX_BASE_URL || 'https://api.minimax.io/v1',
+});
+// OpenRouter is also OpenAI-compatible — one key, many models (e.g. minimax/minimax-01).
+const openrouter = new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: 'https://openrouter.ai/api/v1',
+});
 
 function activeKeyMissing() {
-  return PROVIDER === 'gemini' ? !process.env.GEMINI_API_KEY : !process.env.OPENAI_API_KEY;
+  if (PROVIDER === 'gemini') return !process.env.GEMINI_API_KEY;
+  if (PROVIDER === 'minimax') return !process.env.MINIMAX_API_KEY;
+  if (PROVIDER === 'openrouter') return !process.env.OPENROUTER_API_KEY;
+  return !process.env.OPENAI_API_KEY;
 }
 if (activeKeyMissing()) {
   console.error(`\n[!] Missing API key for provider "${PROVIDER}". Add it to your .env file.\n`);
@@ -42,6 +62,22 @@ const FEEDBACK_FILE = path.join(__dirname, 'data', 'feedback.jsonl');
 // Generation usage log (for the admin analytics page).
 const GENERATIONS_FILE = path.join(__dirname, 'data', 'generations.jsonl');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+
+// Parse a model's JSON reply, tolerating providers that wrap it in a ```json ... ``` fence
+// when they don't support a strict JSON response mode (seen with MiniMax via OpenRouter).
+function tryParseJson(raw) {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const match = String(raw).match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (!match) return null;
+    try {
+      return JSON.parse(match[1]);
+    } catch {
+      return null;
+    }
+  }
+}
 
 function appendJsonl(file, entry) {
   try {
@@ -94,6 +130,47 @@ async function callGemini(model, systemText, userText, temperature, image) {
   throw lastErr;
 }
 
+// Shared OpenAI-compatible chat-completion call (used for both OpenAI and MiniMax, which
+// exposes an OpenAI-style /chat/completions endpoint). Retries without `response_format` if
+// the model/provider rejects it, then retries without `temperature` if that's rejected too.
+async function callOpenAiCompatible(client, model, systemText, userText, temperature, image) {
+  const userContent = image
+    ? [
+        { type: 'text', text: userText },
+        { type: 'image_url', image_url: { url: `data:${image.mimeType};base64,${image.data}` } },
+      ]
+    : userText;
+  const messages = [
+    { role: 'system', content: systemText },
+    { role: 'user', content: userContent },
+  ];
+
+  // Cap output tokens: reply JSON is always short, and some gateways (OpenRouter) price the
+  // request against the model's full max_tokens by default, which can exceed account credits.
+  const attempt = async (opts) => {
+    const completion = await client.chat.completions.create({ model, messages, max_tokens: 4000, ...opts });
+    // Some gateways (OpenRouter) respond HTTP 200 with an `{ error: {...} }` body instead of
+    // throwing — normalise that into a real error so the fallback logic below can catch it.
+    if (completion?.error) throw Object.assign(new Error(completion.error.message || 'Provider error'), { status: completion.error.code });
+    return completion;
+  };
+
+  let completion;
+  try {
+    completion = await attempt({ response_format: { type: 'json_object' }, temperature });
+  } catch (e) {
+    const msg = String(e?.message || '').toLowerCase();
+    if (msg.includes('response_format') || msg.includes('json_object')) {
+      completion = await attempt({ temperature });
+    } else if (msg.includes('temperature')) {
+      completion = await attempt({ response_format: { type: 'json_object' } });
+    } else {
+      throw e;
+    }
+  }
+  return completion.choices?.[0]?.message?.content || '{}';
+}
+
 // Ask the active provider for a JSON reply and return the raw JSON string.
 // image (optional): { mimeType, data } where data is base64 (no data: prefix)
 async function generateJson(systemText, userText, temperature, image) {
@@ -113,30 +190,16 @@ async function generateJson(systemText, userText, temperature, image) {
     throw lastErr; // every model exhausted
   }
 
-  // default: OpenAI. Some newer models only allow the default temperature,
-  // so if a custom temperature is rejected we transparently retry without it.
-  const base = { model: OPENAI_MODEL, response_format: { type: 'json_object' } };
-  const userContent = image
-    ? [
-        { type: 'text', text: userText },
-        { type: 'image_url', image_url: { url: `data:${image.mimeType};base64,${image.data}` } },
-      ]
-    : userText;
-  const messages = [
-    { role: 'system', content: systemText },
-    { role: 'user', content: userContent },
-  ];
-  let completion;
-  try {
-    completion = await openai.chat.completions.create({ ...base, messages, temperature });
-  } catch (e) {
-    if (String(e?.message || '').toLowerCase().includes('temperature')) {
-      completion = await openai.chat.completions.create({ ...base, messages });
-    } else {
-      throw e;
-    }
+  if (PROVIDER === 'minimax') {
+    return callOpenAiCompatible(minimax, MINIMAX_MODEL, systemText, userText, temperature, image);
   }
-  return completion.choices?.[0]?.message?.content || '{}';
+
+  if (PROVIDER === 'openrouter') {
+    return callOpenAiCompatible(openrouter, OPENROUTER_MODEL, systemText, userText, temperature, image);
+  }
+
+  // default: OpenAI
+  return callOpenAiCompatible(openai, OPENAI_MODEL, systemText, userText, temperature, image);
 }
 
 const app = express();
@@ -226,17 +289,30 @@ app.post('/api/auth/logout', (req, res) => {
 
 // --- Allowed option values (kept in sync with the frontend) ---
 const PERSPECTIVES = ['Supporter', 'Opposition', 'Neutral', 'All'];
-const STYLES = ['Comedy', 'Mass Hero', 'Smart', 'Professional', 'Friendly', 'Emotional', 'Debate', 'Savage', 'Meme', 'News'];
+const STYLES = [
+  'Friend', 'Casual Chat', 'Angry', 'Comedy', 'Sarcastic', 'Savage', 'Troll', 'Respectful',
+  'Professional', 'Romantic', 'Cute', 'Emotional', 'Motivational', 'Mass Hero',
+  'Cinema Dialogue', 'Villain', 'Mystery', 'Punch Dialogue', 'SMS Short', 'AI Robot',
+];
+// Reply OUTPUT languages — 100+, kept in sync with public/i18n/output-languages.json (the
+// searchable picker's data source). Any name not special-cased in LANGUAGE_INSTRUCTIONS below
+// still works via the generic fallback in languageInstruction().
 const LANGUAGES = [
-  // Common
-  'Tamil', 'English', 'Tanglish',
-  // Indian languages
-  'Hindi', 'Telugu', 'Kannada', 'Malayalam', 'Marathi', 'Bengali', 'Gujarati',
-  'Punjabi', 'Urdu', 'Odia', 'Assamese', 'Sinhala', 'Nepali',
-  // World languages
-  'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Russian', 'Arabic',
-  'Chinese', 'Japanese', 'Korean', 'Indonesian', 'Malay', 'Turkish', 'Vietnamese',
-  'Thai', 'Dutch', 'Polish', 'Ukrainian', 'Persian', 'Filipino', 'Swahili',
+  'English', 'Tamil', 'Hindi', 'Spanish', 'French', 'Arabic', 'Chinese (Simplified)',
+  'Chinese (Traditional)', 'Portuguese', 'Russian', 'Japanese', 'German', 'Korean', 'Italian',
+  'Turkish', 'Vietnamese', 'Indonesian', 'Bengali', 'Urdu', 'Telugu', 'Marathi', 'Kannada',
+  'Malayalam', 'Gujarati', 'Punjabi', 'Odia', 'Assamese', 'Nepali', 'Sinhala', 'Sanskrit',
+  'Konkani', 'Maithili', 'Bhojpuri', 'Kashmiri', 'Sindhi', 'Manipuri', 'Santali', 'Dogri',
+  'Thai', 'Malay', 'Filipino', 'Burmese', 'Khmer', 'Lao', 'Cebuano', 'Javanese', 'Sundanese',
+  'Mongolian', 'Tibetan', 'Hebrew', 'Persian', 'Pashto', 'Kurdish', 'Azerbaijani', 'Kazakh',
+  'Uzbek', 'Turkmen', 'Tajik', 'Kyrgyz', 'Armenian', 'Georgian', 'Dutch', 'Polish', 'Ukrainian',
+  'Greek', 'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Icelandic', 'Czech', 'Slovak',
+  'Hungarian', 'Romanian', 'Bulgarian', 'Serbian', 'Croatian', 'Bosnian', 'Slovenian',
+  'Macedonian', 'Albanian', 'Estonian', 'Latvian', 'Lithuanian', 'Irish', 'Welsh', 'Catalan',
+  'Basque', 'Galician', 'Maltese', 'Luxembourgish', 'Swahili', 'Amharic', 'Hausa', 'Yoruba',
+  'Igbo', 'Zulu', 'Xhosa', 'Afrikaans', 'Somali', 'Shona', 'Malagasy', 'Kinyarwanda', 'Chichewa',
+  'Sesotho', 'Haitian Creole', 'Latin', 'Esperanto', 'Yiddish', 'Corsican', 'Frisian',
+  'Scots Gaelic', 'Hawaiian', 'Hmong', 'Fijian', 'Samoan', 'Tongan', 'Maori', 'Tanglish',
 ];
 const COUNTS = [1, 3, 5, 10, 20];
 
@@ -271,26 +347,46 @@ const PERSPECTIVE_INSTRUCTIONS = {
 
 // Each style is its own "reply engine" with a distinct personality and writing rhythm.
 const STYLE_HINTS = {
+  Friend:
+    'FRIEND ENGINE. Warm, personal and supportive — like your closest friend replying just for you, not a public one-liner. Caring, easygoing, genuinely invested in the other person.',
+  'Casual Chat':
+    'CASUAL CHAT ENGINE. Relaxed everyday chit-chat energy — the way people banter in a WhatsApp/group chat. Informal, breezy, may use casual filler words. Light and low-effort in the best way.',
+  Angry:
+    'ANGRY ENGINE. Frustrated, irritated, worked-up reaction — real annoyance comes through in the wording and rhythm (clipped sentences, sharp emphasis). Never crosses into slurs, hate speech, threats, or harassment — it is heated, not abusive.',
   Comedy:
     'CLASSIC COMEDY ENGINE. Light, highly entertaining humour in a natural spoken voice (the kind of comment that gets laughs on Facebook / WhatsApp / YouTube). Use ONE of: playful exaggeration, a dramatic over-the-top reaction, or an innocent/funny misunderstanding of the message — then land a short punchline. Warm and silly, never mean. Invent fresh, original jokes; do NOT copy any comedian, actor, or movie dialogue.',
-  'Mass Hero':
-    'MASS HERO ENGINE. Strong confidence and fired-up, motivational energy. Short, bold, hard-hitting punch lines with powerful wording that gives the reader a rush. Punchy rhythm, no long sentences. Completely original wording — never quote or imitate any hero, actor, or film dialogue.',
-  Smart:
-    'SMART ENGINE. Intelligent, calm, balanced and logical. Make one clear, well-reasoned point or insight in a measured tone. No drama, no jokes — sounds thoughtful and sharp.',
-  Professional:
-    'PROFESSIONAL ENGINE. Corporate, respectful and clear. Polished, neutral-formal wording suitable for an official or workplace comment.',
-  Friendly:
-    'FRIENDLY ENGINE. Casual, relaxed and conversational — like chatting with a close friend. Easy-going, warm and kind.',
-  Emotional:
-    'EMOTIONAL ENGINE. Warm, empathetic and deeply human. Speak from genuine feeling — acknowledge the emotion in the moment and show heartfelt care or reaction.',
-  Debate:
-    'DEBATE ENGINE. Respectful disagreement built on logic. Raise a sharp counter-question OR a clear counter-argument that makes the other side think. Stay civil and reasoned — challenge the idea, not the person.',
+  Sarcastic:
+    'SARCASTIC ENGINE. Dry, ironic wit — says the opposite of what it means, or exaggerates fake-praise/fake-sympathy to make the point land. Clever and biting, never a genuine personal insult or put-down of someone\'s character/appearance.',
   Savage:
     'SAVAGE ENGINE. Sharp, witty, supremely confident comeback. Win with clever, cutting wit — never abusive, never defamatory, no slurs, no attacks on appearance/identity. Burn the argument, not the person.',
-  Meme:
-    'MEME ENGINE. Internet/meme-culture energy: short, punchy, viral-style wording with relatable, playful humour — the kind of one-liner people screenshot and share. Keep it original; do NOT reproduce copyrighted meme text or named characters.',
-  News:
-    'NEWS ENGINE. Neutral, informative and objective, like a calm news-desk line. State it factually and evenly — no opinion, no emotion, no jokes.',
+  Troll:
+    'TROLL ENGINE. Playful, mischievous wind-up energy — teasing, exaggerated bait, cheeky "gotcha" lines that get a reaction. Harmless fun, never real bullying, never targeting someone\'s identity or personal traits.',
+  Respectful:
+    'RESPECTFUL ENGINE. Polite, humble and considerate. Softly worded, deferential tone that shows genuine regard for the other person\'s feelings or effort.',
+  Professional:
+    'PROFESSIONAL ENGINE. Corporate, respectful and clear. Polished, neutral-formal wording suitable for an official or workplace comment.',
+  Romantic:
+    'ROMANTIC ENGINE. Affectionate, tender and sweet. Warm loving language appropriate to the moment — genuine and heartfelt, never cheesy filler or generic pickup lines.',
+  Cute:
+    'CUTE ENGINE. Adorable, bubbly and soft — playful sweetness, gentle words, an endearing and lighthearted feel. Innocent charm, not sarcasm.',
+  Emotional:
+    'EMOTIONAL ENGINE. Warm, empathetic and deeply human. Speak from genuine feeling — acknowledge the emotion in the moment and show heartfelt care or reaction.',
+  Motivational:
+    'MOTIVATIONAL ENGINE. Energising pep-talk tone — encouraging the reader to keep going, push through, or feel proud. Uplifting and sincere, not preachy or generic.',
+  'Mass Hero':
+    'MASS HERO ENGINE. Strong confidence and fired-up, motivational energy. Short, bold, hard-hitting punch lines with powerful wording that gives the reader a rush. Punchy rhythm, no long sentences. Completely original wording — never quote or imitate any hero, actor, or film dialogue.',
+  'Cinema Dialogue':
+    'CINEMA DIALOGUE ENGINE. Dramatic, theatrical delivery with a deliberate pause-and-punch rhythm, like a memorable movie line. Bold and stylised, but 100% original wording — never reproduce or closely paraphrase any real film dialogue.',
+  Villain:
+    'VILLAIN ENGINE. Confident, superior, slightly menacing antagonist energy — dramatic and arrogant in a fictional, larger-than-life way. Fun dark-character flavour, never a real threat, real hate, or targeted harassment.',
+  Mystery:
+    'MYSTERY ENGINE. Cryptic and intriguing — hints at more than it says, keeps the reader curious, a hint of suspense. Understated and enigmatic rather than fully explained.',
+  'Punch Dialogue':
+    'PUNCH DIALOGUE ENGINE. Ultra-short, maximum-impact one-liner — every word earns its place. Hard-hitting and bold, never abusive or crude.',
+  'SMS Short':
+    'SMS/SHORT ENGINE. Extremely brief, like a real text message — minimal words, quick and to the point, no fluff or elaboration.',
+  'AI Robot':
+    'AI/ROBOT ENGINE. Deadpan, literal and mechanical — a logical robotic persona giving a precise, matter-of-fact response. Dry, formal-ish phrasing, no emotion, occasionally a dry robotic quirk.',
 };
 
 function buildSystemPrompt() {
@@ -310,16 +406,16 @@ function buildSystemPrompt() {
     '',
     'STEP 3 — Commit fully to each style\'s personality:',
     '- Every reply has a "style", and each style is its own reply engine with a distinct personality and writing rhythm (described next to each style below).',
-    '- Two replies in different styles must read like they were written by two DIFFERENT people — different rhythm, energy, vocabulary, and sentence shapes. A Comedy reply and a News reply should feel nothing alike.',
-    '- Lean hard into the chosen style; do not blur them into one neutral middle voice.',
+    '- Two replies in different styles must read like they were written by two DIFFERENT people — different rhythm, energy, vocabulary, and sentence shapes. A Comedy reply and a Professional reply should feel nothing alike.',
+    '- Lean hard into the chosen style; do not blur them into one neutral middle voice. Note: "AI Robot" is the one exception where sounding deliberately mechanical IS the style.',
     '',
     'Sound human & stay varied:',
-    '- Make every reply feel like a real human actually typed it — natural, not robotic, not template-like.',
+    '- Make every reply feel like a real human actually typed it — natural, not robotic, not template-like (except the "AI Robot" style, which is deliberately robotic on purpose).',
     '- Across the set, VARY everything: openings, sentence structure, length, and rhythm. Never reuse the same phrase, opener, or pattern twice.',
     '- Each reply must be genuinely unique — no two replies should feel like copies of each other.',
     '',
     'Tone:',
-    '- Be natural and respectful by default. Only the "Savage" style may be sharp — and even then, win with wit, never crude or insulting nonsense.',
+    '- Be natural and respectful by default. The edgier styles (Angry, Sarcastic, Savage, Troll, Villain, Punch Dialogue) are intentionally sharper per their engine description above — even then, they win with wit/attitude, never with crude or insulting nonsense.',
     '- Keep each reply self-contained and ready to send as-is.',
     '',
     'Originality & safety (very important):',
@@ -330,7 +426,7 @@ function buildSystemPrompt() {
     'Hard rules:',
     '- Do NOT invent facts, statistics, names, dates, events, or quotes.',
     '- For controversial or political topics, never present unverified claims as facts. Phrase opinions as opinions ("I feel...", "In my view...").',
-    '- "Savage" style may be bold and blunt but must never include slurs, hate speech, threats, defamation, or harassment.',
+    '- The edgier styles (Angry, Sarcastic, Savage, Troll, Villain, Punch Dialogue) may be bold and blunt but must NEVER include slurs, hate speech, threats, defamation, or harassment.',
     '- Honour the requested perspective, styles, and output language exactly.',
     '',
     'Respond ONLY with valid JSON.',
@@ -348,7 +444,17 @@ function buildUserPrompt({ message, perspective, styles, language, count, hasIma
         .filter(Boolean)
         .join('\n')
     : `Read the following message carefully. Every reply you write must respond directly and specifically to it.\n\nMESSAGE TO RESPOND TO:\n"""\n${message}\n"""`;
+  // Explicit request/instruction summary (kept in addition to, not instead of, the detailed
+  // style engines / language / perspective rules below — this just restates the ask plainly).
+  const requestSummary = [
+    `User Question: ${hasImage ? '(see attached image' + (message ? ' + note below' : '') + ')' : message}`,
+    `Selected Reply Style: ${styles.join(', ')}`,
+    `Selected Output Language: ${language}`,
+    `Instruction: Generate the replies in the selected output language. Keep the selected reply style(s) consistent. Return ${count} unique repl${count === 1 ? 'y' : 'ies'}.`,
+  ].join('\n');
   return [
+    requestSummary,
+    '',
     source,
     '',
     `Write exactly ${count} reply suggestions, each one a direct, on-topic response to the message${hasImage ? '/image' : ''} above.`,
@@ -364,7 +470,7 @@ function buildUserPrompt({ message, perspective, styles, language, count, hasIma
     '',
     'Return JSON in exactly this shape:',
     '{ "replies": [ { "style": "<one of the styles above>", "perspective": "<Supporter|Opposition|Neutral>", "text": "<the reply>" } ] }',
-    `The "replies" array must contain exactly ${count} items.`,
+    `The "replies" array must contain exactly ${count} items, each with genuinely unique wording.`,
   ].join('\n');
 }
 
@@ -425,11 +531,7 @@ async function handleGenerate(req, res) {
     let data = null;
     for (let attempt = 0; attempt < 2 && !data; attempt++) {
       const raw = await generateJson(buildSystemPrompt(), userPrompt, 0.7, parsed.image);
-      try {
-        data = JSON.parse(raw);
-      } catch {
-        data = null;
-      }
+      data = tryParseJson(raw);
     }
     if (!data) {
       return res.status(502).json({ error: 'AI returned an unreadable response. Try again.' });
@@ -519,10 +621,8 @@ app.post('/api/regenerate', async (req, res) => {
       0.8,
       image
     );
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch {
+    const data = tryParseJson(raw);
+    if (!data) {
       return res.status(502).json({ error: 'AI returned an unreadable response.' });
     }
     const first = (Array.isArray(data.replies) ? data.replies : []).find(

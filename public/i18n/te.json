@@ -1,0 +1,148 @@
+{
+  "langPicker": {
+    "searchPlaceholder": "భాషలను వెతకండి...",
+    "popular": "ప్రాచుర్యం",
+    "allLanguages": "అన్ని భాషలు",
+    "noMatches": "సరిపోలికలు లేవు",
+    "uiLanguageTitle": "ఇంటర్‌ఫేస్ భాష",
+    "outputLanguageTitle": "అవుట్‌పుట్ భాష"
+  },
+  "nav": {
+    "brandName": "AI రిప్లై అసిస్టెంట్",
+    "home": "హోమ్",
+    "recent": "ఇటీవలివి",
+    "saved": "సేవ్ చేసిన రిప్లైలు",
+    "settings": "సెట్టింగ్‌లు",
+    "comingSoon": "“{name}” తదుపరి అప్‌డేట్‌లో వస్తుంది.",
+    "themeToggleTitle": "లైట్ / డార్క్ మోడ్ మార్చు",
+    "interfaceLanguageTitle": "ఇంటర్‌ఫేస్ భాష",
+    "signOut": "సైన్ అవుట్",
+    "adminTitle": "అడ్మిన్ అనలిటిక్స్",
+    "adminName": "అడ్మిన్"
+  },
+  "step1": {
+    "title": "మెసేజ్ లేదా URL పేస్ట్ చేయండి",
+    "urlPlaceholder": "…లేదా YouTube / Instagram URL పేస్ట్ చేయండి",
+    "fetchContext": "కాంటెక్స్ట్ పొందండి",
+    "fetching": "పొందుతోంది…",
+    "clearContextTitle": "కాంటెక్స్ట్ క్లియర్ చేయి",
+    "messagePlaceholder": "ఏదైనా మెసేజ్, ప్రశ్న, న్యూస్, కామెంట్, ఈమెయిల్ లేదా సంభాషణను ఇక్కడ పేస్ట్ చేయండి — లేదా పైన URL నుండి కాంటెక్స్ట్ పొందండి.",
+    "charCount": "{count} / {max} అక్షరాలు",
+    "clearBtn": "⟲ క్లియర్",
+    "attachImage": "🖼️ ఇమేజ్ జోడించు",
+    "changeImage": "🖼️ ఇమేజ్ మార్చు",
+    "attachHint": "అప్‌లోడ్ చేయండి లేదా స్క్రీన్‌షాట్‌ను పేస్ట్ చేయండి (Ctrl+V) — Instagram / Facebook / X పోస్ట్‌లు చాలా బాగా పనిచేస్తాయి",
+    "removeImageTitle": "ఇమేజ్ తీసివేయి"
+  },
+  "step2": {
+    "title": "అవుట్‌పుట్ భాష",
+    "optgroupCommon": "సాధారణం",
+    "optgroupIndian": "భారతీయ భాషలు",
+    "optgroupWorld": "ప్రపంచ భాషలు"
+  },
+  "step3": {
+    "title": "రిప్లైల సంఖ్య",
+    "countOne": "{n} రిప్లై",
+    "countMany": "{n} రిప్లైలు"
+  },
+  "step4": {
+    "title": "దృక్కోణం",
+    "all": "అన్నీ",
+    "supporter": "మద్దతు",
+    "opposition": "వ్యతిరేకత",
+    "neutral": "తటస్థం"
+  },
+  "step5": {
+    "title": "రిప్లై స్టైల్స్",
+    "hint": "(కనీసం ఒకటి ఎంచుకోండి)",
+    "styleFriend": "ఫ్రెండ్",
+    "styleCasualChat": "క్యాజువల్ చాట్",
+    "styleAngry": "కోపం",
+    "styleComedy": "ఫన్నీ / కామెడీ",
+    "styleSarcastic": "సార్కాస్టిక్",
+    "styleSavage": "సావేజ్",
+    "styleTroll": "ట్రోల్",
+    "styleRespectful": "గౌరవప్రదం",
+    "styleProfessional": "ప్రొఫెషనల్",
+    "styleRomantic": "రొమాంటిక్",
+    "styleCute": "క్యూట్",
+    "styleEmotional": "సాడ్ / ఎమోషనల్",
+    "styleMotivational": "మోటివేషనల్",
+    "styleMassHero": "హీరో / మాస్",
+    "styleCinemaDialogue": "సినిమా డైలాగ్",
+    "styleVillain": "విలన్",
+    "styleMystery": "మిస్టరీ",
+    "stylePunchDialogue": "పంచ్ డైలాగ్",
+    "styleSmsShort": "SMS / షార్ట్ రిప్లై",
+    "styleAiRobot": "AI / రోబోట్"
+  },
+  "generate": {
+    "button": "⚡ AI రిప్లైలు రూపొందించు",
+    "usageCounter": "ఈరోజు ఉచిత రిప్లైలు: {left} / {limit} మిగిలి ఉన్నాయి",
+    "topUp": "టాప్ అప్",
+    "dailyLimitTitle": "రోజువారీ ఉచిత పరిమితి పూర్తయింది",
+    "dailyLimitStatus": "రోజువారీ ఉచిత పరిమితి పూర్తయింది. మరిన్ని రిప్లైల కోసం టాప్ అప్ చేయండి.",
+    "topUpComingSoon": "టాప్-అప్ ఫీచర్ త్వరలో వస్తుంది.",
+    "generatingCount": "{count} రిప్లైలు రూపొందుతున్నాయి…"
+  },
+  "empty": {
+    "title": "మీ AI రిప్లైలు ఇక్కడ కనిపిస్తాయి",
+    "desc": "మీ మెసేజ్‌ను పేస్ట్ చేసి, ఆప్షన్‌లను ఎంచుకుని ప్రారంభించడానికి “AI రిప్లైలు రూపొందించు” క్లిక్ చేయండి.",
+    "tipTitle": "💡 టిప్",
+    "tipDesc": "మంచి ఫలితాల కోసం మీ మెసేజ్‌లో స్పష్టంగా ఉండండి.",
+    "quickStartTitle": "🚀 క్విక్ స్టార్ట్",
+    "quickStartDesc": "పేస్ట్ చేయండి → స్టైల్స్ ఎంచుకోండి → రూపొందించండి → ఇష్టమైన రిప్లైలను కాపీ చేయండి"
+  },
+  "results": {
+    "titleTemplate": "AI రూపొందించిన రిప్లైలు ({count})",
+    "generating": "రూపొందుతోంది…",
+    "searchPlaceholder": "రిప్లైలను వెతకండి...",
+    "allStyles": "అన్ని స్టైల్స్",
+    "sortNewest": "కొత్తవి",
+    "sortOldest": "పాతవి",
+    "sortByStyle": "స్టైల్ ప్రకారం",
+    "noMatch": "మీ శోధనకు సరిపోలే రిప్లైలు లేవు.",
+    "copyAll": "⧉ అన్నీ కాపీ చేయి",
+    "exportTxt": "⬇ TXT ఎగుమతి",
+    "exportCsv": "⬇ CSV ఎగుమతి"
+  },
+  "card": {
+    "copy": "⧉ కాపీ",
+    "copied": "✓ కాపీ అయింది",
+    "regenerate": "↻ మళ్ళీ రూపొందించు",
+    "regenerating": "↻ …",
+    "save": "☆ సేవ్ చేయి",
+    "saved": "★ సేవ్ అయింది"
+  },
+  "toast": {
+    "imagePasted": "ఇమేజ్ పేస్ట్ అయింది ✓",
+    "saved": "సేవ్ అయింది",
+    "removedFromSaved": "సేవ్ నుండి తీసివేయబడింది",
+    "allRepliesCopied": "అన్ని రిప్లైలు కాపీ అయ్యాయి",
+    "signedInAs": "{name} గా సైన్ ఇన్ అయ్యారు",
+    "welcomeBonus": "🎉 స్వాగతం! మీకు {n} ఉచిత AI రిప్లైలు లభించాయి.",
+    "signInFailed": "సైన్-ఇన్ విఫలమైంది.",
+    "couldNotReachServer": "సైన్-ఇన్ కోసం సర్వర్‌ను చేరుకోలేకపోయాము.",
+    "signedOut": "సైన్ అవుట్ అయ్యారు",
+    "regenerateFailed": "మళ్ళీ రూపొందించడం విఫలమైంది",
+    "networkError": "నెట్‌వర్క్ ఎర్రర్",
+    "dailyLimitReached": "రోజువారీ ఉచిత పరిమితి పూర్తయింది. మరిన్ని కోసం టాప్ అప్ చేయండి."
+  },
+  "errors": {
+    "pasteMessageOrImage": "మొదట మెసేజ్ పేస్ట్ చేయండి లేదా ఇమేజ్ జోడించండి.",
+    "selectStyle": "కనీసం ఒక రిప్లై స్టైల్ ఎంచుకోండి.",
+    "onlyLeftOne": "ఈరోజు మీకు {left} ఉచిత రిప్లై మాత్రమే మిగిలి ఉంది. దయచేసి {left} లేదా అంతకంటే తక్కువ రిప్లైలను ఎంచుకోండి, లేదా టాప్ అప్ చేయండి.",
+    "onlyLeftMany": "ఈరోజు మీకు {left} ఉచిత రిప్లైలు మాత్రమే మిగిలి ఉన్నాయి. దయచేసి {left} లేదా అంతకంటే తక్కువ రిప్లైలను ఎంచుకోండి, లేదా టాప్ అప్ చేయండి.",
+    "somethingWrong": "ఏదో తప్పు జరిగింది.",
+    "networkErrorGenerate": "నెట్‌వర్క్ ఎర్రర్ — సర్వర్ రన్ అవుతోందా?",
+    "pasteUrl": "మొదట YouTube లేదా Instagram URL పేస్ట్ చేయండి.",
+    "couldNotFetchContext": "కాంటెక్స్ట్ పొందలేకపోయాము.",
+    "couldNotFetchAutoManual": "ఆటోమేటిక్‌గా పొందలేకపోయాము — వివరాలను మాన్యువల్‌గా పేస్ట్ చేయండి.",
+    "networkErrorContext": "కాంటెక్స్ట్ పొందడంలో నెట్‌వర్క్ ఎర్రర్.",
+    "chooseImageFile": "దయచేసి ఒక ఇమేజ్ ఫైల్‌ను ఎంచుకోండి.",
+    "couldNotReadImage": "ఆ ఇమేజ్‌ను చదవలేకపోయాము. వేరే ఫైల్‌ను ప్రయత్నించండి."
+  },
+  "footer": {
+    "text": "AI-రూపొందించిన సూచనలు — పోస్ట్ చేయడానికి ముందు సమీక్షించండి. వాస్తవాలను కల్పించవద్దని ఇంజన్‌కు సూచించబడింది; క్లెయిమ్‌లను ఎల్లప్పుడూ మీరే ధృవీకరించుకోండి."
+  }
+}

@@ -19,7 +19,7 @@ $('themeToggle').addEventListener('click', () => {
 });
 
 // ===== Usage controls (this browser's daily free-limit, shared localStorage key with the app) =====
-const FREE_LIMIT = 10;
+const FREE_LIMIT = 1000;
 function renderUsageState() {
   let u = {};
   try { u = JSON.parse(localStorage.getItem('are.usage') || '{}'); } catch {}

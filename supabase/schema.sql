@@ -124,7 +124,7 @@ alter table public.audit_log        enable row level security;
 -- ---------- Seed default settings (matches the current Phase-1 behaviour) ----------
 insert into public.pricing_settings (key, value) values
   ('free_new_user_replies', '20'),
-  ('daily_free_replies', '10'),
+  ('daily_free_replies', '1000'),
   ('referral_reward', '20'),
   ('referral_min_actions', 'generate+copy'),
   ('referral_enabled', 'true'),

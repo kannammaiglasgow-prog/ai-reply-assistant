@@ -1,0 +1,716 @@
+[
+  {
+    "name": "English",
+    "nativeName": "English",
+    "flag": "🇬🇧",
+    "popular": true
+  },
+  {
+    "name": "Tamil",
+    "nativeName": "தமிழ்",
+    "flag": "🇮🇳",
+    "popular": true
+  },
+  {
+    "name": "Hindi",
+    "nativeName": "हिन्दी",
+    "flag": "🇮🇳",
+    "popular": true
+  },
+  {
+    "name": "Spanish",
+    "nativeName": "Español",
+    "flag": "🇪🇸",
+    "popular": true
+  },
+  {
+    "name": "French",
+    "nativeName": "Français",
+    "flag": "🇫🇷",
+    "popular": true
+  },
+  {
+    "name": "Arabic",
+    "nativeName": "العربية",
+    "flag": "🇸🇦",
+    "popular": true
+  },
+  {
+    "name": "Chinese (Simplified)",
+    "nativeName": "中文（简体）",
+    "flag": "🇨🇳",
+    "popular": true
+  },
+  {
+    "name": "Chinese (Traditional)",
+    "nativeName": "中文（繁體）",
+    "flag": "🇹🇼",
+    "popular": true
+  },
+  {
+    "name": "Portuguese",
+    "nativeName": "Português",
+    "flag": "🇵🇹",
+    "popular": true
+  },
+  {
+    "name": "Russian",
+    "nativeName": "Русский",
+    "flag": "🇷🇺",
+    "popular": true
+  },
+  {
+    "name": "Japanese",
+    "nativeName": "日本語",
+    "flag": "🇯🇵",
+    "popular": true
+  },
+  {
+    "name": "German",
+    "nativeName": "Deutsch",
+    "flag": "🇩🇪",
+    "popular": true
+  },
+  {
+    "name": "Korean",
+    "nativeName": "한국어",
+    "flag": "🇰🇷",
+    "popular": true
+  },
+  {
+    "name": "Italian",
+    "nativeName": "Italiano",
+    "flag": "🇮🇹",
+    "popular": true
+  },
+  {
+    "name": "Turkish",
+    "nativeName": "Türkçe",
+    "flag": "🇹🇷",
+    "popular": true
+  },
+  {
+    "name": "Vietnamese",
+    "nativeName": "Tiếng Việt",
+    "flag": "🇻🇳",
+    "popular": true
+  },
+  {
+    "name": "Indonesian",
+    "nativeName": "Bahasa Indonesia",
+    "flag": "🇮🇩",
+    "popular": true
+  },
+  {
+    "name": "Bengali",
+    "nativeName": "বাংলা",
+    "flag": "🇧🇩",
+    "popular": true
+  },
+  {
+    "name": "Urdu",
+    "nativeName": "اردو",
+    "flag": "🇵🇰",
+    "popular": true
+  },
+  {
+    "name": "Telugu",
+    "nativeName": "తెలుగు",
+    "flag": "🇮🇳",
+    "popular": true
+  },
+  {
+    "name": "Marathi",
+    "nativeName": "मराठी",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Kannada",
+    "nativeName": "ಕನ್ನಡ",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Malayalam",
+    "nativeName": "മലയാളം",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Gujarati",
+    "nativeName": "ગુજરાતી",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Punjabi",
+    "nativeName": "ਪੰਜਾਬੀ",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Odia",
+    "nativeName": "ଓଡ଼ିଆ",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Assamese",
+    "nativeName": "অসমীয়া",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Nepali",
+    "nativeName": "नेपाली",
+    "flag": "🇳🇵",
+    "popular": false
+  },
+  {
+    "name": "Sinhala",
+    "nativeName": "සිංහල",
+    "flag": "🇱🇰",
+    "popular": false
+  },
+  {
+    "name": "Sanskrit",
+    "nativeName": "संस्कृतम्",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Konkani",
+    "nativeName": "कोंकणी",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Maithili",
+    "nativeName": "मैथिली",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Bhojpuri",
+    "nativeName": "भोजपुरी",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Kashmiri",
+    "nativeName": "کٲشُر",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Sindhi",
+    "nativeName": "سنڌي",
+    "flag": "🇵🇰",
+    "popular": false
+  },
+  {
+    "name": "Manipuri",
+    "nativeName": "ꯃꯤꯇꯩꯂꯣꯟ",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Santali",
+    "nativeName": "ᱥᱟᱱᱛᱟᱲᱤ",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Dogri",
+    "nativeName": "डोगरी",
+    "flag": "🇮🇳",
+    "popular": false
+  },
+  {
+    "name": "Thai",
+    "nativeName": "ไทย",
+    "flag": "🇹🇭",
+    "popular": false
+  },
+  {
+    "name": "Malay",
+    "nativeName": "Bahasa Melayu",
+    "flag": "🇲🇾",
+    "popular": false
+  },
+  {
+    "name": "Filipino",
+    "nativeName": "Filipino",
+    "flag": "🇵🇭",
+    "popular": false
+  },
+  {
+    "name": "Burmese",
+    "nativeName": "မြန်မာဘာသာ",
+    "flag": "🇲🇲",
+    "popular": false
+  },
+  {
+    "name": "Khmer",
+    "nativeName": "ភាសាខ្មែរ",
+    "flag": "🇰🇭",
+    "popular": false
+  },
+  {
+    "name": "Lao",
+    "nativeName": "ພາສາລາວ",
+    "flag": "🇱🇦",
+    "popular": false
+  },
+  {
+    "name": "Cebuano",
+    "nativeName": "Cebuano",
+    "flag": "🇵🇭",
+    "popular": false
+  },
+  {
+    "name": "Javanese",
+    "nativeName": "Basa Jawa",
+    "flag": "🇮🇩",
+    "popular": false
+  },
+  {
+    "name": "Sundanese",
+    "nativeName": "Basa Sunda",
+    "flag": "🇮🇩",
+    "popular": false
+  },
+  {
+    "name": "Mongolian",
+    "nativeName": "Монгол",
+    "flag": "🇲🇳",
+    "popular": false
+  },
+  {
+    "name": "Tibetan",
+    "nativeName": "བོད་སྐད",
+    "flag": "🇨🇳",
+    "popular": false
+  },
+  {
+    "name": "Hebrew",
+    "nativeName": "עברית",
+    "flag": "🇮🇱",
+    "popular": false
+  },
+  {
+    "name": "Persian",
+    "nativeName": "فارسی",
+    "flag": "🇮🇷",
+    "popular": false
+  },
+  {
+    "name": "Pashto",
+    "nativeName": "پښتو",
+    "flag": "🇦🇫",
+    "popular": false
+  },
+  {
+    "name": "Kurdish",
+    "nativeName": "کوردی",
+    "flag": "🇮🇶",
+    "popular": false
+  },
+  {
+    "name": "Azerbaijani",
+    "nativeName": "Azərbaycan",
+    "flag": "🇦🇿",
+    "popular": false
+  },
+  {
+    "name": "Kazakh",
+    "nativeName": "Қазақша",
+    "flag": "🇰🇿",
+    "popular": false
+  },
+  {
+    "name": "Uzbek",
+    "nativeName": "Oʻzbekcha",
+    "flag": "🇺🇿",
+    "popular": false
+  },
+  {
+    "name": "Turkmen",
+    "nativeName": "Türkmençe",
+    "flag": "🇹🇲",
+    "popular": false
+  },
+  {
+    "name": "Tajik",
+    "nativeName": "Тоҷикӣ",
+    "flag": "🇹🇯",
+    "popular": false
+  },
+  {
+    "name": "Kyrgyz",
+    "nativeName": "Кыргызча",
+    "flag": "🇰🇬",
+    "popular": false
+  },
+  {
+    "name": "Armenian",
+    "nativeName": "Հայերեն",
+    "flag": "🇦🇲",
+    "popular": false
+  },
+  {
+    "name": "Georgian",
+    "nativeName": "ქართული",
+    "flag": "🇬🇪",
+    "popular": false
+  },
+  {
+    "name": "Dutch",
+    "nativeName": "Nederlands",
+    "flag": "🇳🇱",
+    "popular": false
+  },
+  {
+    "name": "Polish",
+    "nativeName": "Polski",
+    "flag": "🇵🇱",
+    "popular": false
+  },
+  {
+    "name": "Ukrainian",
+    "nativeName": "Українська",
+    "flag": "🇺🇦",
+    "popular": false
+  },
+  {
+    "name": "Greek",
+    "nativeName": "Ελληνικά",
+    "flag": "🇬🇷",
+    "popular": false
+  },
+  {
+    "name": "Swedish",
+    "nativeName": "Svenska",
+    "flag": "🇸🇪",
+    "popular": false
+  },
+  {
+    "name": "Norwegian",
+    "nativeName": "Norsk",
+    "flag": "🇳🇴",
+    "popular": false
+  },
+  {
+    "name": "Danish",
+    "nativeName": "Dansk",
+    "flag": "🇩🇰",
+    "popular": false
+  },
+  {
+    "name": "Finnish",
+    "nativeName": "Suomi",
+    "flag": "🇫🇮",
+    "popular": false
+  },
+  {
+    "name": "Icelandic",
+    "nativeName": "Íslenska",
+    "flag": "🇮🇸",
+    "popular": false
+  },
+  {
+    "name": "Czech",
+    "nativeName": "Čeština",
+    "flag": "🇨🇿",
+    "popular": false
+  },
+  {
+    "name": "Slovak",
+    "nativeName": "Slovenčina",
+    "flag": "🇸🇰",
+    "popular": false
+  },
+  {
+    "name": "Hungarian",
+    "nativeName": "Magyar",
+    "flag": "🇭🇺",
+    "popular": false
+  },
+  {
+    "name": "Romanian",
+    "nativeName": "Română",
+    "flag": "🇷🇴",
+    "popular": false
+  },
+  {
+    "name": "Bulgarian",
+    "nativeName": "Български",
+    "flag": "🇧🇬",
+    "popular": false
+  },
+  {
+    "name": "Serbian",
+    "nativeName": "Српски",
+    "flag": "🇷🇸",
+    "popular": false
+  },
+  {
+    "name": "Croatian",
+    "nativeName": "Hrvatski",
+    "flag": "🇭🇷",
+    "popular": false
+  },
+  {
+    "name": "Bosnian",
+    "nativeName": "Bosanski",
+    "flag": "🇧🇦",
+    "popular": false
+  },
+  {
+    "name": "Slovenian",
+    "nativeName": "Slovenščina",
+    "flag": "🇸🇮",
+    "popular": false
+  },
+  {
+    "name": "Macedonian",
+    "nativeName": "Македонски",
+    "flag": "🇲🇰",
+    "popular": false
+  },
+  {
+    "name": "Albanian",
+    "nativeName": "Shqip",
+    "flag": "🇦🇱",
+    "popular": false
+  },
+  {
+    "name": "Estonian",
+    "nativeName": "Eesti",
+    "flag": "🇪🇪",
+    "popular": false
+  },
+  {
+    "name": "Latvian",
+    "nativeName": "Latviešu",
+    "flag": "🇱🇻",
+    "popular": false
+  },
+  {
+    "name": "Lithuanian",
+    "nativeName": "Lietuvių",
+    "flag": "🇱🇹",
+    "popular": false
+  },
+  {
+    "name": "Irish",
+    "nativeName": "Gaeilge",
+    "flag": "🇮🇪",
+    "popular": false
+  },
+  {
+    "name": "Welsh",
+    "nativeName": "Cymraeg",
+    "flag": "🏴",
+    "popular": false
+  },
+  {
+    "name": "Catalan",
+    "nativeName": "Català",
+    "flag": "🇪🇸",
+    "popular": false
+  },
+  {
+    "name": "Basque",
+    "nativeName": "Euskara",
+    "flag": "🇪🇸",
+    "popular": false
+  },
+  {
+    "name": "Galician",
+    "nativeName": "Galego",
+    "flag": "🇪🇸",
+    "popular": false
+  },
+  {
+    "name": "Maltese",
+    "nativeName": "Malti",
+    "flag": "🇲🇹",
+    "popular": false
+  },
+  {
+    "name": "Luxembourgish",
+    "nativeName": "Lëtzebuergesch",
+    "flag": "🇱🇺",
+    "popular": false
+  },
+  {
+    "name": "Swahili",
+    "nativeName": "Kiswahili",
+    "flag": "🇰🇪",
+    "popular": false
+  },
+  {
+    "name": "Amharic",
+    "nativeName": "አማርኛ",
+    "flag": "🇪🇹",
+    "popular": false
+  },
+  {
+    "name": "Hausa",
+    "nativeName": "Hausa",
+    "flag": "🇳🇬",
+    "popular": false
+  },
+  {
+    "name": "Yoruba",
+    "nativeName": "Yorùbá",
+    "flag": "🇳🇬",
+    "popular": false
+  },
+  {
+    "name": "Igbo",
+    "nativeName": "Igbo",
+    "flag": "🇳🇬",
+    "popular": false
+  },
+  {
+    "name": "Zulu",
+    "nativeName": "isiZulu",
+    "flag": "🇿🇦",
+    "popular": false
+  },
+  {
+    "name": "Xhosa",
+    "nativeName": "isiXhosa",
+    "flag": "🇿🇦",
+    "popular": false
+  },
+  {
+    "name": "Afrikaans",
+    "nativeName": "Afrikaans",
+    "flag": "🇿🇦",
+    "popular": false
+  },
+  {
+    "name": "Somali",
+    "nativeName": "Soomaali",
+    "flag": "🇸🇴",
+    "popular": false
+  },
+  {
+    "name": "Shona",
+    "nativeName": "chiShona",
+    "flag": "🇿🇼",
+    "popular": false
+  },
+  {
+    "name": "Malagasy",
+    "nativeName": "Malagasy",
+    "flag": "🇲🇬",
+    "popular": false
+  },
+  {
+    "name": "Kinyarwanda",
+    "nativeName": "Ikinyarwanda",
+    "flag": "🇷🇼",
+    "popular": false
+  },
+  {
+    "name": "Chichewa",
+    "nativeName": "Chichewa",
+    "flag": "🇲🇼",
+    "popular": false
+  },
+  {
+    "name": "Sesotho",
+    "nativeName": "Sesotho",
+    "flag": "🇱🇸",
+    "popular": false
+  },
+  {
+    "name": "Haitian Creole",
+    "nativeName": "Kreyòl Ayisyen",
+    "flag": "🇭🇹",
+    "popular": false
+  },
+  {
+    "name": "Latin",
+    "nativeName": "Latina",
+    "flag": "🇻🇦",
+    "popular": false
+  },
+  {
+    "name": "Esperanto",
+    "nativeName": "Esperanto",
+    "flag": "🌐",
+    "popular": false
+  },
+  {
+    "name": "Yiddish",
+    "nativeName": "ייִדיש",
+    "flag": "✡️",
+    "popular": false
+  },
+  {
+    "name": "Corsican",
+    "nativeName": "Corsu",
+    "flag": "🇫🇷",
+    "popular": false
+  },
+  {
+    "name": "Frisian",
+    "nativeName": "Frysk",
+    "flag": "🇳🇱",
+    "popular": false
+  },
+  {
+    "name": "Scots Gaelic",
+    "nativeName": "Gàidhlig",
+    "flag": "🏴",
+    "popular": false
+  },
+  {
+    "name": "Hawaiian",
+    "nativeName": "ʻŌlelo Hawaiʻi",
+    "flag": "🇺🇸",
+    "popular": false
+  },
+  {
+    "name": "Hmong",
+    "nativeName": "Hmoob",
+    "flag": "🌏",
+    "popular": false
+  },
+  {
+    "name": "Fijian",
+    "nativeName": "Vosa Vakaviti",
+    "flag": "🇫🇯",
+    "popular": false
+  },
+  {
+    "name": "Samoan",
+    "nativeName": "Gagana Sāmoa",
+    "flag": "🇼🇸",
+    "popular": false
+  },
+  {
+    "name": "Tongan",
+    "nativeName": "Lea Fakatonga",
+    "flag": "🇹🇴",
+    "popular": false
+  },
+  {
+    "name": "Maori",
+    "nativeName": "Te Reo Māori",
+    "flag": "🇳🇿",
+    "popular": false
+  },
+  {
+    "name": "Tanglish",
+    "nativeName": "Tanglish (Tamil in English letters)",
+    "flag": "🇮🇳",
+    "popular": true
+  }
+]

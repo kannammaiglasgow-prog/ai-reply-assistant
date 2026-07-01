@@ -1,0 +1,148 @@
+{
+  "langPicker": {
+    "searchPlaceholder": "භාෂා සොයන්න...",
+    "popular": "ජනප්‍රිය",
+    "allLanguages": "සියලුම භාෂා",
+    "noMatches": "ගැලපීම් නැත",
+    "uiLanguageTitle": "අතුරු මුහුණත භාෂාව",
+    "outputLanguageTitle": "ප්‍රතිදාන භාෂාව"
+  },
+  "nav": {
+    "brandName": "AI පිළිතුරු සහායක",
+    "home": "මුල් පිටුව",
+    "recent": "මෑත",
+    "saved": "සුරැකි පිළිතුරු",
+    "settings": "සැකසුම්",
+    "comingSoon": "“{name}” ඊළඟ යාවත්කාලීනයේ එනු ඇත.",
+    "themeToggleTitle": "ලයිට් / ඩාක් මාදිලිය මාරු කරන්න",
+    "interfaceLanguageTitle": "අතුරු මුහුණත භාෂාව",
+    "signOut": "නික්මෙන්න",
+    "adminTitle": "පරිපාලක විශ්ලේෂණ",
+    "adminName": "පරිපාලක"
+  },
+  "step1": {
+    "title": "පණිවිඩය හෝ URL එකක් අලවන්න",
+    "urlPlaceholder": "…නැතහොත් YouTube / Instagram URL එකක් අලවන්න",
+    "fetchContext": "සන්දර්භය ලබාගන්න",
+    "fetching": "ලබාගනිමින්…",
+    "clearContextTitle": "සන්දර්භය හිස් කරන්න",
+    "messagePlaceholder": "ඕනෑම පණිවිඩයක්, ප්‍රශ්නයක්, පුවතක්, අදහසක්, විද්‍යුත් තැපෑලක් හෝ සංවාදයක් මෙහි අලවන්න — නැතහොත් ඉහත URL එකකින් සන්දර්භය ලබාගන්න.",
+    "charCount": "{count} / {max} අක්ෂර",
+    "clearBtn": "⟲ හිස් කරන්න",
+    "attachImage": "🖼️ රූපයක් අමුණන්න",
+    "changeImage": "🖼️ රූපය වෙනස් කරන්න",
+    "attachHint": "උඩුගත කරන්න හෝ තිර රුවක් අලවන්න (Ctrl+V) — Instagram / Facebook / X පළ කිරීම් හොඳින් ක්‍රියා කරයි",
+    "removeImageTitle": "රූපය ඉවත් කරන්න"
+  },
+  "step2": {
+    "title": "ප්‍රතිදාන භාෂාව",
+    "optgroupCommon": "සාමාන්‍ය",
+    "optgroupIndian": "ඉන්දීය භාෂා",
+    "optgroupWorld": "ලෝක භාෂා"
+  },
+  "step3": {
+    "title": "පිළිතුරු ගණන",
+    "countOne": "පිළිතුරු {n}",
+    "countMany": "පිළිතුරු {n}"
+  },
+  "step4": {
+    "title": "දෘෂ්ටිකෝණය",
+    "all": "සියල්ල",
+    "supporter": "සහයෝගය",
+    "opposition": "විරෝධය",
+    "neutral": "මධ්‍යස්ථ"
+  },
+  "step5": {
+    "title": "පිළිතුරු විලාස",
+    "hint": "(අවම වශයෙන් එකක් තෝරන්න)",
+    "styleFriend": "මිතුරා",
+    "styleCasualChat": "අහඹු කතාබහ",
+    "styleAngry": "කෝපය",
+    "styleComedy": "විනෝදාත්මක / හාස්‍යජනක",
+    "styleSarcastic": "උපහාසාත්මක",
+    "styleSavage": "සැවේජ්",
+    "styleTroll": "ට්‍රෝල්",
+    "styleRespectful": "ගෞරවනීය",
+    "styleProfessional": "වෘත්තීය",
+    "styleRomantic": "ආදරණීය",
+    "styleCute": "හුරුබුහුටි",
+    "styleEmotional": "දුක්බර / චිත්තවේගී",
+    "styleMotivational": "පෙළඹවීමේ",
+    "styleMassHero": "වීරයා / මාස්",
+    "styleCinemaDialogue": "සිනමා දෙබස්",
+    "styleVillain": "දුෂ්ටයා",
+    "styleMystery": "අභිරහස",
+    "stylePunchDialogue": "පන්ච් දෙබස්",
+    "styleSmsShort": "SMS / කෙටි පිළිතුර",
+    "styleAiRobot": "AI / රොබෝ"
+  },
+  "generate": {
+    "button": "⚡ AI පිළිතුරු ජනනය කරන්න",
+    "usageCounter": "අද නොමිලේ පිළිතුරු: {left} / {limit} ඉතිරිව ඇත",
+    "topUp": "ටොප් අප්",
+    "dailyLimitTitle": "දෛනික නොමිලේ සීමාව ඉක්මවා ඇත",
+    "dailyLimitStatus": "දෛනික නොමිලේ සීමාව ඉක්මවා ඇත. තවත් පිළිතුරු සඳහා ටොප් අප් කරන්න.",
+    "topUpComingSoon": "ටොප්-අප් විශේෂාංගය ඉක්මනින් එනු ඇත.",
+    "generatingCount": "පිළිතුරු {count} ක් ජනනය කරමින්…"
+  },
+  "empty": {
+    "title": "ඔබේ AI පිළිතුරු මෙහි දිස්වනු ඇත",
+    "desc": "ඔබේ පණිවිඩය අලවා, විකල්ප තෝරා ආරම්භ කිරීමට “AI පිළිතුරු ජනනය කරන්න” ක්ලික් කරන්න.",
+    "tipTitle": "💡 ඉඟිය",
+    "tipDesc": "වඩා හොඳ ප්‍රතිඵල සඳහා ඔබේ පණිවිඩය පැහැදිලි කරන්න.",
+    "quickStartTitle": "🚀 ඉක්මන් ආරම්භය",
+    "quickStartDesc": "අලවන්න → විලාස තෝරන්න → ජනනය කරන්න → ප්‍රියතම පිළිතුරු පිටපත් කරන්න"
+  },
+  "results": {
+    "titleTemplate": "AI ජනනය කළ පිළිතුරු ({count})",
+    "generating": "ජනනය කරමින්…",
+    "searchPlaceholder": "පිළිතුරු සොයන්න...",
+    "allStyles": "සියලුම විලාස",
+    "sortNewest": "අලුත්ම",
+    "sortOldest": "පැරණිම",
+    "sortByStyle": "විලාසය අනුව",
+    "noMatch": "ඔබේ සෙවුමට ගැලපෙන පිළිතුරු නොමැත.",
+    "copyAll": "⧉ සියල්ල පිටපත් කරන්න",
+    "exportTxt": "⬇ TXT අපනයනය",
+    "exportCsv": "⬇ CSV අපනයනය"
+  },
+  "card": {
+    "copy": "⧉ පිටපත් කරන්න",
+    "copied": "✓ පිටපත් විය",
+    "regenerate": "↻ නැවත ජනනය කරන්න",
+    "regenerating": "↻ …",
+    "save": "☆ සුරකින්න",
+    "saved": "★ සුරැකිණි"
+  },
+  "toast": {
+    "imagePasted": "රූපය අලවන ලදී ✓",
+    "saved": "සුරැකිණි",
+    "removedFromSaved": "සුරැකි ඒවායින් ඉවත් කරන ලදී",
+    "allRepliesCopied": "සියලුම පිළිතුරු පිටපත් විය",
+    "signedInAs": "{name} ලෙස පුරන ලදී",
+    "welcomeBonus": "🎉 සාදරයෙන් පිළිගනිමු! ඔබට නොමිලේ AI පිළිතුරු {n} ක් ලැබී ඇත.",
+    "signInFailed": "පිවිසීම අසාර්ථක විය.",
+    "couldNotReachServer": "පිවිසීම සඳහා සර්වරය වෙත ළඟාවිය නොහැකි විය.",
+    "signedOut": "නික්මුනි",
+    "regenerateFailed": "නැවත ජනනය කිරීම අසාර්ථක විය",
+    "networkError": "ජාල දෝෂයකි",
+    "dailyLimitReached": "දෛනික නොමිලේ සීමාව ඉක්මවා ඇත. තවත් ලබාගැනීමට ටොප් අප් කරන්න."
+  },
+  "errors": {
+    "pasteMessageOrImage": "පළමුව පණිවිඩයක් අලවන්න හෝ රූපයක් අමුණන්න.",
+    "selectStyle": "අවම වශයෙන් එක් පිළිතුරු විලාසයක් තෝරන්න.",
+    "onlyLeftOne": "අද ඔබට ඉතිරිව ඇත්තේ නොමිලේ පිළිතුරු {left} ක් පමණි. කරුණාකර {left} ක් හෝ අඩුවෙන් තෝරන්න, නැතහොත් ටොප් අප් කරන්න.",
+    "onlyLeftMany": "අද ඔබට ඉතිරිව ඇත්තේ නොමිලේ පිළිතුරු {left} ක් පමණි. කරුණාකර {left} ක් හෝ අඩුවෙන් තෝරන්න, නැතහොත් ටොප් අප් කරන්න.",
+    "somethingWrong": "යමක් වැරදී ඇත.",
+    "networkErrorGenerate": "ජාල දෝෂයකි — සර්වරය ක්‍රියාත්මකද?",
+    "pasteUrl": "පළමුව YouTube හෝ Instagram URL එකක් අලවන්න.",
+    "couldNotFetchContext": "සන්දර්භය ලබාගත නොහැකි විය.",
+    "couldNotFetchAutoManual": "ස්වයංක්‍රීයව ලබාගත නොහැකි විය — විස්තර හස්තීයව අලවන්න.",
+    "networkErrorContext": "සන්දර්භය ලබාගැනීමේදී ජාල දෝෂයකි.",
+    "chooseImageFile": "කරුණාකර රූප ගොනුවක් තෝරන්න.",
+    "couldNotReadImage": "එම රූපය කියවිය නොහැකි විය. වෙනත් ගොනුවක් උත්සාහ කරන්න."
+  },
+  "footer": {
+    "text": "AI-ජනිත යෝජනා — පළ කිරීමට පෙර සමාලෝචනය කරන්න. කරුණු නොගොතන ලෙස මෙම එන්ජිමට උපදෙස් දී ඇත; ප්‍රකාශ සැමවිටම ඔබම තහවුරු කරගන්න."
+  }
+}

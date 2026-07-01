@@ -59,15 +59,80 @@ The Gemini key starts with `AQ.` and works on the paid tier (free tier daily cap
 
 ## Key behaviours already built (do not regress)
 - **Providers:** `generateJson(systemText,userText,temperature,image)` routes to Gemini (REST,
-  `responseMimeType: application/json`) or OpenAI (chat completions). Gemini has **auto model
-  fallback** on 429 (quota) via `GEMINI_FALLBACKS`, and one transient-503 retry. OpenAI retries
-  without `temperature` if a model rejects a custom value. Malformed-JSON gets one retry.
-- **Prompt engine:** `buildSystemPrompt()` + `buildUserPrompt()` + `STYLE_HINTS`. 10 distinct
-  style "engines": Comedy, Mass Hero, Smart, Professional, Friendly, Emotional, Debate, Savage,
-  Meme, News — each with its own personality. Strong rules: respond directly to the message,
-  natural Tamil with ONLY real correctly-spelled words (no invented/garbled words), originality &
-  safety (NEVER imitate real people/celebrities/copyrighted dialogue), vary every reply.
-- **Languages:** `LANGUAGES` array + `languageInstruction()` (Tamil/Tanglish special-cased, generic for rest).
+  `responseMimeType: application/json`), or one of three OpenAI-compatible gateways via the shared
+  `callOpenAiCompatible()` helper — **OpenAI**, **MiniMax** (`https://api.minimax.io/v1`), or
+  **OpenRouter** (`https://openrouter.ai/api/v1`, one key routes to many models incl. MiniMax).
+  Gemini has **auto model fallback** on 429 (quota) via `GEMINI_FALLBACKS`, and one transient-503
+  retry. `PROVIDER` env var picks one of `gemini | openai | minimax | openrouter`. The OpenAI-
+  compatible path retries without `response_format`/`temperature` if a model rejects them, caps
+  `max_tokens` at 4000 (some gateways price against the model's full default otherwise), and
+  normalises gateways that return HTTP 200 with an `{ error: {...} }` body (seen on OpenRouter)
+  into a real thrown error so the fallback logic engages. `tryParseJson()` also tolerates replies
+  wrapped in a ```json fence (seen with MiniMax when it doesn't honour `response_format`).
+  Malformed-JSON gets one retry.
+- **Prompt engine:** `buildSystemPrompt()` + `buildUserPrompt()` + `STYLE_HINTS`. `buildUserPrompt()`
+  opens with an explicit `User Question / Selected Reply Style / Selected Output Language /
+  Instruction` summary block (on request), layered ON TOP OF — not replacing — the detailed
+  style/language/perspective engineering below it. **20** distinct
+  style "engines" (replaced the original 10 on request): Friend, Casual Chat, Angry, Comedy,
+  Sarcastic, Savage, Troll, Respectful, Professional, Romantic, Cute, Emotional, Motivational,
+  Mass Hero, Cinema Dialogue, Villain, Mystery, Punch Dialogue, SMS Short, AI Robot — each with its
+  own personality in `STYLE_HINTS` (server.js), matching checkboxes+emoji in index.html, and a
+  badge colour class in `STYLE_CLASS` (app.js) / style.css. The edgier styles (Angry, Sarcastic,
+  Savage, Troll, Villain, Punch Dialogue) are explicitly allowed to be sharp in the system prompt,
+  but the Hard Rules section still bans slurs/hate/threats/defamation/harassment for all of them.
+  Strong rules: respond directly to the message, natural Tamil with ONLY real correctly-spelled
+  words (no invented/garbled words), originality & safety (NEVER imitate real people/celebrities/
+  copyrighted dialogue), vary every reply.
+- **Two fully independent 100+-language systems** (do not conflate them):
+  1. **Reply OUTPUT language** (what the AI writes) — `server.js` `LANGUAGES` array, **119 entries**,
+     kept in sync with `public/i18n/output-languages.json` (verified 1:1 by name at build time — see
+     `node -e` diff in HANDOFF history if it ever needs re-checking). `languageInstruction()` special-
+     cases Tamil/English/Tanglish for extra-strict quality and falls back to a strong generic
+     instruction for every other language, so any of the 119 (or any future addition) works without
+     more code. Picked via the **searchable Output Language picker** (Step 2), persisted in
+     `localStorage['are.outputLang']` (default `'Tamil'`), independent of the UI language below.
+  2. **UI (interface) language** — `public/i18n/languages.json`, **118 entries** (code, name,
+     nativeName, flag, `popular`, optional `dir:"rtl"`). Each language CAN have a
+     `public/i18n/<code>.json` dictionary; **10 have full hand-written translations today** (en, ta,
+     hi, te, ml, si, zh, ar, fr, es) — the other ~108 are already selectable/searchable and fully
+     functional, just rendering in English until a dictionary file is added (see fallback below).
+     Picked via the **searchable UI Language picker** (top bar), persisted in
+     `localStorage['are.uiLang']`.
+  - **`public/lang-picker.js`** — one reusable vanilla-JS searchable dropdown (`window.
+    createLangPicker(container, opts)`), instantiated twice (UI + output) with different data/
+    valueKey/storage. Search matches name/nativeName/code (prefix match ranks above substring
+    match); "Popular" section shown first when the search box is empty, then the full A–Z list;
+    each row shows flag + native name (`dir="auto"`, so RTL scripts render correctly even inside an
+    LTR list) + English name. `setValue()` syncs it programmatically (e.g. auto-detected language
+    from URL fetch); `setLabels()` re-translates the picker's own chrome live.
+  - **`public/i18n.js`** — the UI-language engine. Loads `languages.json` + the saved/default
+    dictionary, applies `data-i18n` / `data-i18n-placeholder` / `data-i18n-title` / `data-i18n-label`
+    / `data-i18n-count` attributes in index.html, sets `<html lang>`/`dir` (`rtl` for Arabic, Urdu,
+    Hebrew, Persian, Pashto, Kurdish, Sindhi, Kashmiri, Yiddish), exposes `window.i18n.t(key, vars)`
+    + `i18n.onChange(cb)` + `i18n.ready` (a promise app.js awaits before building the UI picker).
+    **Fallback is real, not cosmetic:** `loadDict()` never throws — a 404 for a language with no
+    file yet resolves to `{}`, and `t()` already does `currentDict[key] ?? enDict[key] ?? key`, so
+    every key silently reads as English. The language is still selected/persisted/applied (lang/dir
+    attributes) even with zero real strings — the moment a `<code>.json` is added later, the exact
+    same selection starts rendering real text with no other code changes.
+  - app.js uses `i18n.t()` for every dynamically-generated string (toasts, status/error messages,
+    card action labels, results title, style/perspective badge labels via `STYLE_I18N_KEY`/
+    `PERSP_I18N_KEY`) and re-renders those + both pickers' chrome on `i18n.onChange`.
+  - **Adding a new UI language with real text: zero code changes** — add one entry to
+    `languages.json` and a matching `<code>.json` (same key shape as `en.json`). **Adding a new
+    output language: zero code changes to the picker/UI** — add one entry to
+    `output-languages.json` and the matching name to `server.js`'s `LANGUAGES` array (keep them in
+    sync; `languageInstruction()` needs no change unless you want a hand-tuned instruction for it).
+  - Scope note: a handful of secondary URL-context-preview strings (view/like counts, "Top
+    comments") are intentionally left English-only; everything else (nav, buttons, labels,
+    placeholders, all 20 style names, perspective names, errors, toasts, loading/result headings,
+    footer, both language pickers' own chrome) is translated for the 10 languages with real files.
+  - Verified in-browser end-to-end: 118-language searchable UI list renders/searches correctly
+    (accessibility-tree checked), Swahili (no `sw.json` yet) selects + persists + falls back to
+    English cleanly, Arabic UI still switches to `dir="rtl"`, and a real `/api/generate-replies`
+    call with Output Language = Icelandic (previously unavailable) returned genuine Icelandic text —
+    confirming the full 100+ output-language pipeline works, not just the picker UI.
 - **Image (vision):** image attached as base64; sent inline to the model. Frontend resizes before upload.
 - **Image paste:** Ctrl+V an image anywhere → auto-attaches (document `paste` listener in app.js).
 - **URL context:** "Fetch Context" → preview card → fills the message box.

@@ -1,0 +1,148 @@
+{
+  "langPicker": {
+    "searchPlaceholder": "भाषाएं खोजें...",
+    "popular": "लोकप्रिय",
+    "allLanguages": "सभी भाषाएं",
+    "noMatches": "कोई मिलान नहीं",
+    "uiLanguageTitle": "इंटरफ़ेस भाषा",
+    "outputLanguageTitle": "आउटपुट भाषा"
+  },
+  "nav": {
+    "brandName": "AI रिप्लाई असिस्टेंट",
+    "home": "होम",
+    "recent": "हाल की",
+    "saved": "सेव किए गए जवाब",
+    "settings": "सेटिंग्स",
+    "comingSoon": "“{name}” अगले अपडेट में आएगा।",
+    "themeToggleTitle": "लाइट / डार्क मोड बदलें",
+    "interfaceLanguageTitle": "इंटरफ़ेस भाषा",
+    "signOut": "साइन आउट",
+    "adminTitle": "एडमिन एनालिटिक्स",
+    "adminName": "एडमिन"
+  },
+  "step1": {
+    "title": "मैसेज या URL पेस्ट करें",
+    "urlPlaceholder": "…या YouTube / Instagram URL पेस्ट करें",
+    "fetchContext": "संदर्भ प्राप्त करें",
+    "fetching": "प्राप्त हो रहा है…",
+    "clearContextTitle": "संदर्भ साफ़ करें",
+    "messagePlaceholder": "यहाँ कोई भी मैसेज, सवाल, न्यूज़, कमेंट, ईमेल या बातचीत पेस्ट करें — या ऊपर किसी URL से संदर्भ प्राप्त करें।",
+    "charCount": "{count} / {max} अक्षर",
+    "clearBtn": "⟲ साफ़ करें",
+    "attachImage": "🖼️ इमेज जोड़ें",
+    "changeImage": "🖼️ इमेज बदलें",
+    "attachHint": "अपलोड करें या स्क्रीनशॉट पेस्ट करें (Ctrl+V) — Instagram / Facebook / X पोस्ट बेहतरीन काम करते हैं",
+    "removeImageTitle": "इमेज हटाएं"
+  },
+  "step2": {
+    "title": "आउटपुट भाषा",
+    "optgroupCommon": "सामान्य",
+    "optgroupIndian": "भारतीय भाषाएं",
+    "optgroupWorld": "विश्व भाषाएं"
+  },
+  "step3": {
+    "title": "जवाबों की संख्या",
+    "countOne": "{n} जवाब",
+    "countMany": "{n} जवाब"
+  },
+  "step4": {
+    "title": "दृष्टिकोण",
+    "all": "सभी",
+    "supporter": "समर्थक",
+    "opposition": "विरोध",
+    "neutral": "तटस्थ"
+  },
+  "step5": {
+    "title": "रिप्लाई स्टाइल",
+    "hint": "(कम से कम एक चुनें)",
+    "styleFriend": "दोस्त",
+    "styleCasualChat": "कैज़ुअल चैट",
+    "styleAngry": "गुस्सा",
+    "styleComedy": "मज़ेदार / कॉमेडी",
+    "styleSarcastic": "व्यंग्यात्मक",
+    "styleSavage": "सैवेज",
+    "styleTroll": "ट्रोल",
+    "styleRespectful": "सम्मानजनक",
+    "styleProfessional": "प्रोफेशनल",
+    "styleRomantic": "रोमांटिक",
+    "styleCute": "क्यूट",
+    "styleEmotional": "उदास / भावुक",
+    "styleMotivational": "प्रेरणादायक",
+    "styleMassHero": "हीरो / मास",
+    "styleCinemaDialogue": "सिनेमा डायलॉग",
+    "styleVillain": "विलेन",
+    "styleMystery": "रहस्य",
+    "stylePunchDialogue": "पंच डायलॉग",
+    "styleSmsShort": "SMS / छोटा जवाब",
+    "styleAiRobot": "AI / रोबोट"
+  },
+  "generate": {
+    "button": "⚡ AI जवाब बनाएं",
+    "usageCounter": "आज के मुफ़्त जवाब: {left} / {limit} बचे हैं",
+    "topUp": "टॉप अप",
+    "dailyLimitTitle": "दैनिक मुफ़्त सीमा समाप्त",
+    "dailyLimitStatus": "दैनिक मुफ़्त सीमा समाप्त हो गई है। और जवाब पाने के लिए टॉप अप करें।",
+    "topUpComingSoon": "टॉप-अप फ़ीचर जल्द आ रहा है।",
+    "generatingCount": "{count} जवाब बनाए जा रहे हैं…"
+  },
+  "empty": {
+    "title": "आपके AI जवाब यहाँ दिखाई देंगे",
+    "desc": "अपना मैसेज पेस्ट करें, विकल्प चुनें और शुरू करने के लिए “AI जवाब बनाएं” पर क्लिक करें।",
+    "tipTitle": "💡 टिप",
+    "tipDesc": "बेहतर परिणाम के लिए अपने मैसेज में स्पष्ट रहें।",
+    "quickStartTitle": "🚀 क्विक स्टार्ट",
+    "quickStartDesc": "पेस्ट करें → स्टाइल चुनें → बनाएं → अपने पसंदीदा जवाब कॉपी करें"
+  },
+  "results": {
+    "titleTemplate": "AI जवाब ({count})",
+    "generating": "बन रहा है…",
+    "searchPlaceholder": "जवाब खोजें...",
+    "allStyles": "सभी स्टाइल",
+    "sortNewest": "नवीनतम",
+    "sortOldest": "पुराने",
+    "sortByStyle": "स्टाइल के अनुसार",
+    "noMatch": "आपकी खोज से मेल खाने वाला कोई जवाब नहीं मिला।",
+    "copyAll": "⧉ सभी कॉपी करें",
+    "exportTxt": "⬇ TXT एक्सपोर्ट",
+    "exportCsv": "⬇ CSV एक्सपोर्ट"
+  },
+  "card": {
+    "copy": "⧉ कॉपी",
+    "copied": "✓ कॉपी हो गया",
+    "regenerate": "↻ फिर से बनाएं",
+    "regenerating": "↻ …",
+    "save": "☆ सेव करें",
+    "saved": "★ सेव हो गया"
+  },
+  "toast": {
+    "imagePasted": "इमेज पेस्ट हो गई ✓",
+    "saved": "सेव हो गया",
+    "removedFromSaved": "सेव से हटाया गया",
+    "allRepliesCopied": "सभी जवाब कॉपी हो गए",
+    "signedInAs": "{name} के रूप में साइन इन किया गया",
+    "welcomeBonus": "🎉 स्वागत है! आपको {n} मुफ़्त AI जवाब मिले हैं।",
+    "signInFailed": "साइन-इन विफल रहा।",
+    "couldNotReachServer": "साइन-इन के लिए सर्वर तक नहीं पहुँच सका।",
+    "signedOut": "साइन आउट हो गया",
+    "regenerateFailed": "फिर से बनाना विफल रहा",
+    "networkError": "नेटवर्क त्रुटि",
+    "dailyLimitReached": "दैनिक मुफ़्त सीमा समाप्त हो गई है। और पाने के लिए टॉप अप करें।"
+  },
+  "errors": {
+    "pasteMessageOrImage": "पहले कोई मैसेज पेस्ट करें या इमेज जोड़ें।",
+    "selectStyle": "कम से कम एक रिप्लाई स्टाइल चुनें।",
+    "onlyLeftOne": "आज आपके पास केवल {left} मुफ़्त जवाब बचा है। कृपया {left} या उससे कम जवाब चुनें, या टॉप अप करें।",
+    "onlyLeftMany": "आज आपके पास केवल {left} मुफ़्त जवाब बचे हैं। कृपया {left} या उससे कम जवाब चुनें, या टॉप अप करें।",
+    "somethingWrong": "कुछ गलत हो गया।",
+    "networkErrorGenerate": "नेटवर्क त्रुटि — क्या सर्वर चल रहा है?",
+    "pasteUrl": "पहले एक YouTube या Instagram URL पेस्ट करें।",
+    "couldNotFetchContext": "संदर्भ प्राप्त नहीं कर सका।",
+    "couldNotFetchAutoManual": "स्वचालित रूप से प्राप्त नहीं कर सका — विवरण मैन्युअल रूप से पेस्ट करें।",
+    "networkErrorContext": "संदर्भ प्राप्त करने में नेटवर्क त्रुटि।",
+    "chooseImageFile": "कृपया एक इमेज फ़ाइल चुनें।",
+    "couldNotReadImage": "वह इमेज पढ़ी नहीं जा सकी। कोई अन्य फ़ाइल आज़माएं।"
+  },
+  "footer": {
+    "text": "AI-जनित सुझाव — पोस्ट करने से पहले समीक्षा करें। इंजन को तथ्य न गढ़ने का निर्देश दिया गया है; दावों की हमेशा स्वयं पुष्टि करें।"
+  }
+}

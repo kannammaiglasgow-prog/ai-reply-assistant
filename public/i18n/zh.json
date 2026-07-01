@@ -1,0 +1,148 @@
+{
+  "langPicker": {
+    "searchPlaceholder": "搜索语言...",
+    "popular": "常用",
+    "allLanguages": "所有语言",
+    "noMatches": "没有匹配项",
+    "uiLanguageTitle": "界面语言",
+    "outputLanguageTitle": "输出语言"
+  },
+  "nav": {
+    "brandName": "AI 回复助手",
+    "home": "首页",
+    "recent": "最近",
+    "saved": "已保存的回复",
+    "settings": "设置",
+    "comingSoon": "“{name}”将在下次更新中推出。",
+    "themeToggleTitle": "切换浅色/深色模式",
+    "interfaceLanguageTitle": "界面语言",
+    "signOut": "退出登录",
+    "adminTitle": "管理员分析",
+    "adminName": "管理员"
+  },
+  "step1": {
+    "title": "粘贴消息或链接",
+    "urlPlaceholder": "…或粘贴 YouTube / Instagram 链接",
+    "fetchContext": "获取上下文",
+    "fetching": "获取中…",
+    "clearContextTitle": "清除上下文",
+    "messagePlaceholder": "在此粘贴任何消息、问题、新闻、评论、电子邮件或对话——或从上方链接获取上下文。",
+    "charCount": "{count} / {max} 字符",
+    "clearBtn": "⟲ 清除",
+    "attachImage": "🖼️ 添加图片",
+    "changeImage": "🖼️ 更换图片",
+    "attachHint": "上传或直接粘贴截图（Ctrl+V）——Instagram / Facebook / X 帖子效果最佳",
+    "removeImageTitle": "移除图片"
+  },
+  "step2": {
+    "title": "输出语言",
+    "optgroupCommon": "常用",
+    "optgroupIndian": "印度语言",
+    "optgroupWorld": "世界语言"
+  },
+  "step3": {
+    "title": "回复数量",
+    "countOne": "{n} 条回复",
+    "countMany": "{n} 条回复"
+  },
+  "step4": {
+    "title": "立场",
+    "all": "全部",
+    "supporter": "支持",
+    "opposition": "反对",
+    "neutral": "中立"
+  },
+  "step5": {
+    "title": "回复风格",
+    "hint": "（至少选择一个）",
+    "styleFriend": "朋友",
+    "styleCasualChat": "闲聊",
+    "styleAngry": "愤怒",
+    "styleComedy": "搞笑 / 喜剧",
+    "styleSarcastic": "讽刺",
+    "styleSavage": "犀利",
+    "styleTroll": "调侃",
+    "styleRespectful": "尊重",
+    "styleProfessional": "专业",
+    "styleRomantic": "浪漫",
+    "styleCute": "可爱",
+    "styleEmotional": "伤感 / 感性",
+    "styleMotivational": "励志",
+    "styleMassHero": "英雄 / 燃",
+    "styleCinemaDialogue": "电影台词",
+    "styleVillain": "反派",
+    "styleMystery": "神秘",
+    "stylePunchDialogue": "有力台词",
+    "styleSmsShort": "短信 / 简短回复",
+    "styleAiRobot": "AI / 机器人"
+  },
+  "generate": {
+    "button": "⚡ 生成 AI 回复",
+    "usageCounter": "今日免费回复：剩余 {left} / {limit}",
+    "topUp": "充值",
+    "dailyLimitTitle": "已达每日免费上限",
+    "dailyLimitStatus": "已达每日免费上限。请充值以生成更多回复。",
+    "topUpComingSoon": "充值功能即将上线。",
+    "generatingCount": "正在生成 {count} 条回复…"
+  },
+  "empty": {
+    "title": "您的 AI 回复将显示在这里",
+    "desc": "粘贴您的消息，选择选项，然后点击“生成 AI 回复”开始。",
+    "tipTitle": "💡 提示",
+    "tipDesc": "消息内容越具体，效果越好。",
+    "quickStartTitle": "🚀 快速开始",
+    "quickStartDesc": "粘贴 → 选择风格 → 生成 → 复制您喜欢的回复"
+  },
+  "results": {
+    "titleTemplate": "AI 生成的回复（{count}）",
+    "generating": "生成中…",
+    "searchPlaceholder": "搜索回复...",
+    "allStyles": "所有风格",
+    "sortNewest": "最新",
+    "sortOldest": "最早",
+    "sortByStyle": "按风格排序",
+    "noMatch": "没有符合您搜索条件的回复。",
+    "copyAll": "⧉ 全部复制",
+    "exportTxt": "⬇ 导出 TXT",
+    "exportCsv": "⬇ 导出 CSV"
+  },
+  "card": {
+    "copy": "⧉ 复制",
+    "copied": "✓ 已复制",
+    "regenerate": "↻ 重新生成",
+    "regenerating": "↻ …",
+    "save": "☆ 保存",
+    "saved": "★ 已保存"
+  },
+  "toast": {
+    "imagePasted": "图片已粘贴 ✓",
+    "saved": "已保存",
+    "removedFromSaved": "已从收藏中移除",
+    "allRepliesCopied": "已复制全部回复",
+    "signedInAs": "已以 {name} 身份登录",
+    "welcomeBonus": "🎉 欢迎！您已获得 {n} 条免费 AI 回复。",
+    "signInFailed": "登录失败。",
+    "couldNotReachServer": "无法连接服务器进行登录。",
+    "signedOut": "已退出登录",
+    "regenerateFailed": "重新生成失败",
+    "networkError": "网络错误",
+    "dailyLimitReached": "已达每日免费上限。请充值以获取更多。"
+  },
+  "errors": {
+    "pasteMessageOrImage": "请先粘贴消息或添加图片。",
+    "selectStyle": "请至少选择一种回复风格。",
+    "onlyLeftOne": "您今天只剩 {left} 条免费回复。请选择 {left} 条或更少的回复，或进行充值。",
+    "onlyLeftMany": "您今天只剩 {left} 条免费回复。请选择 {left} 条或更少的回复，或进行充值。",
+    "somethingWrong": "出了点问题。",
+    "networkErrorGenerate": "网络错误——服务器是否正在运行？",
+    "pasteUrl": "请先粘贴 YouTube 或 Instagram 链接。",
+    "couldNotFetchContext": "无法获取上下文。",
+    "couldNotFetchAutoManual": "无法自动获取——请手动粘贴详细信息。",
+    "networkErrorContext": "获取上下文时发生网络错误。",
+    "chooseImageFile": "请选择一个图片文件。",
+    "couldNotReadImage": "无法读取该图片。请尝试其他文件。"
+  },
+  "footer": {
+    "text": "AI 生成的建议——发布前请自行审核。系统已被要求不得编造事实；请始终自行核实相关内容。"
+  }
+}
