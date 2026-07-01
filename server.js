@@ -909,12 +909,19 @@ app.get('/api/admin/analytics', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`\nAI Reply Assistant running at http://localhost:${PORT}`);
-  console.log(`Provider: ${PROVIDER}  |  Model: ${ACTIVE_MODEL}`);
-  console.log(`Admin analytics: ${ADMIN_PASSWORD ? 'enabled at /admin.html' : 'DISABLED (set ADMIN_PASSWORD in .env)'}`);
-  console.log(`Google login: ${googleAuthConfigured() ? 'configured ✓' : 'OFF (set GOOGLE_CLIENT_ID in .env)'}`);
-  checkDb().then((r) =>
-    console.log(`Supabase DB: ${r.ok ? 'connected ✓' : 'not ready — ' + r.reason}\n`)
-  );
-});
+// On Vercel, the platform imports `app` as a serverless request handler (see vercel.json) and
+// calling app.listen() would crash the function — Vercel sets VERCEL=1 in its runtime, so skip it
+// there. Everywhere else (local dev, Render, etc.) this behaves exactly as before.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\nAI Reply Assistant running at http://localhost:${PORT}`);
+    console.log(`Provider: ${PROVIDER}  |  Model: ${ACTIVE_MODEL}`);
+    console.log(`Admin analytics: ${ADMIN_PASSWORD ? 'enabled at /admin.html' : 'DISABLED (set ADMIN_PASSWORD in .env)'}`);
+    console.log(`Google login: ${googleAuthConfigured() ? 'configured ✓' : 'OFF (set GOOGLE_CLIENT_ID in .env)'}`);
+    checkDb().then((r) =>
+      console.log(`Supabase DB: ${r.ok ? 'connected ✓' : 'not ready — ' + r.reason}\n`)
+    );
+  });
+}
+
+export default app;
