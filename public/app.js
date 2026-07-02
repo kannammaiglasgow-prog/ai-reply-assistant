@@ -73,7 +73,7 @@ $('themeToggle').addEventListener('click', () => {
   $('themeToggle').textContent = next === 'dark' ? '🌙' : '☀️';
 });
 
-// ===== Nav (Home is the only active tab in this build) =====
+// ===== Nav (placeholder tabs removed from the topbar; handler kept for when pages ship) =====
 document.querySelectorAll('.nav-link').forEach((link) => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
@@ -83,6 +83,28 @@ document.querySelectorAll('.nav-link').forEach((link) => {
       return;
     }
     document.querySelectorAll('.nav-link').forEach((l) => l.classList.toggle('active', l === link));
+  });
+});
+
+// ===== Style chips: show the popular first row, expand for all 20 =====
+$('moreStylesBtn').addEventListener('click', () => {
+  const collapsed = $('styles').classList.toggle('styles-collapsed');
+  const key = collapsed ? 'step5.showMore' : 'step5.showLess';
+  $('moreStylesBtn').setAttribute('data-i18n', key); // keep the label right across language switches
+  $('moreStylesBtn').textContent = i18n.t(key);
+});
+
+// ===== Empty-state example chips: one tap fills the message box =====
+document.querySelectorAll('.example-chip').forEach((chip) => {
+  chip.addEventListener('click', () => {
+    messageEl.value = i18n.t(chip.dataset.example);
+    charCount.textContent = i18n.t('step1.charCount', { count: messageEl.value.length, max: 5000 });
+    messageEl.focus();
+    // Pre-select a friendly default style if none picked yet, so Generate works in one tap.
+    if (!document.querySelector('input[name="style"]:checked')) {
+      const friend = document.querySelector('input[name="style"][value="Friend"]');
+      if (friend) friend.checked = true;
+    }
   });
 });
 
@@ -560,7 +582,7 @@ function readForm() {
     perspective: document.querySelector('input[name="perspective"]:checked')?.value,
     styles: [...document.querySelectorAll('input[name="style"]:checked')].map((c) => c.value),
     language: $('language').value,
-    count: Number($('count').value),
+    count: Number(document.querySelector('input[name="count"]:checked')?.value || 1),
   };
 }
 

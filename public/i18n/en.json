@@ -74,7 +74,9 @@
     "styleMystery": "Mystery",
     "stylePunchDialogue": "Punch Dialogue",
     "styleSmsShort": "SMS / Short Reply",
-    "styleAiRobot": "AI / Robot"
+    "styleAiRobot": "AI / Robot",
+    "showMore": "+ More styles",
+    "showLess": "− Show less"
   },
   "generate": {
     "button": "⚡ Generate AI Replies",
@@ -138,6 +140,13 @@
   "empty": {
     "title": "Your AI replies will appear here",
     "desc": "Paste your message, select options and click “Generate AI Replies” to get started.",
+    "tryTitle": "Try one:",
+    "ex1Label": "🏏 Sports comment",
+    "ex1": "What a match! India pulled it off in the last over — this team never gives up! 🇮🇳",
+    "ex2Label": "🎉 Congratulate a friend",
+    "ex2": "Guys, I finally got the job offer! Starting next month 😭🙏",
+    "ex3Label": "💼 Reply to your boss",
+    "ex3": "Can you take the lead on tomorrow's client presentation? I'll be travelling.",
     "tipTitle": "💡 Tip",
     "tipDesc": "Be specific with your message for better results.",
     "quickStartTitle": "🚀 Quick Start",

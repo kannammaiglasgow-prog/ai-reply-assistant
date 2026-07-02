@@ -504,6 +504,100 @@ textarea:focus, select:focus {
   z-index: 50;
 }
 
+/* ============================================================================
+   UI redesign (2026-07): compact form, style chips, segmented pills,
+   empty-state examples, card polish, mobile sticky generate bar.
+   Overrides earlier rules on purpose — keep this section AFTER them.
+   ========================================================================== */
+
+/* Compact section labels (numbered step circles retired) */
+.block-head.compact { margin-bottom: 8px; }
+.block-head.compact h2 { font-size: 0.83rem; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; }
+.block-head.compact small { font-weight: 400; }
+
+/* Options row: language + count + perspective in one strip */
+.options-row { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: flex-end; }
+.opt-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field-label { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+
+/* Segmented pills (count + perspective): the radio hides, its span is the segment */
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--panel-2); }
+.segmented label { display: contents; cursor: pointer; }
+.segmented input { position: absolute; opacity: 0; pointer-events: none; }
+.segmented span {
+  padding: 8px 13px; font-size: 0.85rem; color: var(--muted); cursor: pointer;
+  border-right: 1px solid var(--border); user-select: none; white-space: nowrap;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.segmented label:last-child span { border-right: none; }
+.segmented span:hover { color: var(--text); }
+.segmented input:checked + span { background: var(--accent-grad); color: #fff; font-weight: 600; }
+
+/* Style chips: same checkboxes underneath, rendered as tappable pills */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips .opt {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 7px 13px; font-size: 0.86rem; color: var(--muted);
+  background: var(--panel-2);
+  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease, transform 0.08s ease;
+}
+.chips .opt:hover { border-color: var(--accent); color: var(--text); }
+.chips .opt:active { transform: scale(0.96); }
+.chips .opt input { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
+.chips .opt:has(input:checked) {
+  background: var(--accent-tint); border-color: var(--accent);
+  color: var(--accent); font-weight: 600;
+}
+/* Collapsed: show the first 8 chips, the rest behind "+ More styles" —
+   but never hide a chip the user has selected */
+.styles-collapsed .opt:nth-child(n + 9) { display: none; }
+.styles-collapsed .opt:nth-child(n + 9):has(input:checked) { display: inline-flex; }
+.chip-more {
+  border: 1px dashed var(--border); border-radius: 999px; background: none;
+  padding: 7px 13px; font: inherit; font-size: 0.86rem; color: var(--accent);
+  cursor: pointer; margin-top: 8px;
+}
+.chip-more:hover { border-color: var(--accent); background: var(--accent-tint); }
+
+/* Generate bar: sticky at the bottom on small screens so it's always reachable */
+.gen-bar { margin-top: 4px; }
+@media (max-width: 900px) {
+  .gen-bar {
+    position: sticky; bottom: 0; z-index: 20;
+    background: var(--panel); padding: 10px 0 6px;
+    border-top: 1px solid var(--border);
+    margin: 4px -6px 0; padding-left: 6px; padding-right: 6px;
+  }
+}
+
+/* Empty-state example chips */
+.example-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin-top: 18px; }
+.example-chips-label { font-size: 0.82rem; }
+.example-chip {
+  border: 1px solid var(--border); border-radius: 999px; background: var(--panel);
+  padding: 7px 14px; font: inherit; font-size: 0.85rem; color: var(--text);
+  cursor: pointer; transition: border-color 0.12s ease, background 0.12s ease, transform 0.08s ease;
+}
+.example-chip:hover { border-color: var(--accent); background: var(--accent-tint); }
+.example-chip:active { transform: scale(0.96); }
+
+/* Reply cards: bigger, airier text (Tamil especially) + entrance animation */
+.card-text { font-size: 1.02rem; line-height: 1.75; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.results .card { animation: cardIn 0.28s ease both; }
+.results .card:nth-child(2) { animation-delay: 0.05s; }
+.results .card:nth-child(3) { animation-delay: 0.1s; }
+.results .card:nth-child(4) { animation-delay: 0.15s; }
+.results .card:nth-child(5) { animation-delay: 0.2s; }
+.results .card:nth-child(n + 6) { animation-delay: 0.25s; }
+@media (prefers-reduced-motion: reduce) { .results .card { animation: none; } }
+
+/* Micro-interactions on primary actions */
+.primary-btn { transition: filter 0.12s ease, transform 0.08s ease; }
+.primary-btn:hover { filter: brightness(1.06); }
+.primary-btn:active { transform: scale(0.985); }
+
 /* ===== Token badge (topbar) ===== */
 .token-badge[hidden] { display: none; } /* class display would otherwise beat the hidden attr */
 .token-badge {

@@ -707,10 +707,10 @@ async function resolveGate(req, requestedCount, action = 'generate') {
       return {
         allow: true,
         mode: 'user',
-        commit: async (_res, actualReplies) => {
+        commit: async (_res, actualReplies, language = null) => {
           const spend = tokenCost * actualReplies;
           const tokenBalance = await spendTokens(uid, spend, action);
-          await logUsage({ userId: uid, action, tokensSpent: spend, replies: actualReplies });
+          await logUsage({ userId: uid, action, tokensSpent: spend, replies: actualReplies, language });
           logEvent(uid, action);
           // Referral engine: generating may satisfy the 'first_generation' min-action for this
           // invited user. Exits instantly when there's no pending referral (the common case).
@@ -735,10 +735,10 @@ async function resolveGate(req, requestedCount, action = 'generate') {
   return {
     allow: true,
     mode: 'guest',
-    commit: async (res, actualReplies) => {
+    commit: async (res, actualReplies, language = null) => {
       const newUsed = used + actualReplies;
       setGuestUsage(res, newUsed);
-      await logUsage({ guest: true, action, tokensSpent: 0, replies: actualReplies });
+      await logUsage({ guest: true, action, tokensSpent: 0, replies: actualReplies, language });
       return { guestRemaining: Math.max(0, guestFree - newUsed) };
     },
   };
@@ -795,7 +795,7 @@ async function handleGenerate(req, res) {
 
     // Charge tokens / bump the guest counter now that generation succeeded.
     let extra = {};
-    try { extra = (await gate.commit(res, clean.length)) || {}; } catch (e) { console.error('gate.commit failed:', e?.message || e); }
+    try { extra = (await gate.commit(res, clean.length, parsed.language)) || {}; } catch (e) { console.error('gate.commit failed:', e?.message || e); }
 
     res.json({ replies: clean, ...extra });
   } catch (err) {
@@ -868,7 +868,7 @@ app.post('/api/regenerate', async (req, res) => {
     if (!first) return res.status(502).json({ error: 'No reply generated.' });
 
     let extra = {};
-    try { extra = (await gate.commit(res, 1)) || {}; } catch (e) { console.error('gate.commit failed:', e?.message || e); }
+    try { extra = (await gate.commit(res, 1, language)) || {}; } catch (e) { console.error('gate.commit failed:', e?.message || e); }
 
     res.json({
       reply: {

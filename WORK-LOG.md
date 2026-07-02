@@ -231,3 +231,28 @@ in one session, committed as `4eea09a`, pushed, and verified live on Render (~60
   Render env vars — steps in HANDOFF), Stripe checkout + webhook, admin per-user management,
   translations of the new i18n keys beyond en.json, ADMIN_PASSWORD rotation (now more urgent —
   admin settings control real money-ish numbers).
+
+---
+
+# Session 2026-07-02 — UI redesign + real activation (Supabase + Google OAuth)
+
+- **UI full redesign** (user picked "full" from a mockup + 9 suggestions): compact options row,
+  segmented count/perspective pills, 20 styles as emoji chips with +More expander, topbar
+  placeholder tabs removed, empty-state example chips, bigger reply text + entrance animations,
+  mobile sticky generate bar. Frontend-only; readForm() field contract unchanged except count
+  (select → radios). Verified: desktop/mobile/dark screenshots, real generation through the new
+  form, guest gate modal, zero console errors.
+- **Real activation, walked the user through it live:** Supabase project `reply_engine` +
+  schema run (dedupe needed — schema seeds duplicate if run twice) + new-format `sb_secret_` key
+  (drop-in for service_role); Google OAuth Web client on their existing "Default Gemini
+  Project"; SESSION_SECRET generated. First real Google sign-in worked: user row + 50 starter
+  tokens + ledger + referral code `U4D8UWQ`. Deduction verified 50→49→48 via server-side
+  session-crafted API tests (SESSION_SECRET lets a local script mint a valid session cookie —
+  handy for testing the signed-in path without a browser).
+- **Fix found in testing:** usage_logs.language was null — gate.commit() now takes the language
+  through from the parsed request.
+- **Tamil translations** added for every new UI string (login/tokens/upgrade/plans/dashboard/
+  referral/examples) in ta.json; other 8 dictionaries fall back to English.
+- **Still needs the user:** Render env vars (4 values, dashboard), Google OAuth "Publish app"
+  (Testing mode = only owner can log in), 2nd-account referral test, ADMIN_PASSWORD rotation
+  (memory reminder set — flag before customer launch).

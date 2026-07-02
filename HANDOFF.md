@@ -298,9 +298,38 @@ architecture, data model, and build order are in **`PHASE2-SPEC.md`** — start 
   - **Remaining after Phase C:** actual Stripe Checkout + webhook, admin per-user management UI
     (block/grant tokens per user), user-facing "payment history", i18n translations of the new
     keys (`plans.*`, `dashboard.*`) beyond English.
-  - **To activate:** fill SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY + GOOGLE_CLIENT_ID +
-    SESSION_SECRET in .env (and Render env), run the updated schema.sql, then test a real Google
-    sign-in (should create the user with 50 tokens and show the badge).
+  - **ACTIVATED LOCALLY (2026-07-02):** the user created Supabase project `reply_engine`
+    (ran schema.sql — twice, which duplicated the plans/topup seeds; deduped via a one-off
+    script since `plans` has no unique name constraint) and a Google OAuth Web client
+    ("Default Gemini Project" in Google Cloud). Local `.env` now has real SUPABASE_URL /
+    SUPABASE_SERVICE_ROLE_KEY (new `sb_secret_...` format key — works as a drop-in for
+    service_role) / GOOGLE_CLIENT_ID / SESSION_SECRET. **Verified end-to-end locally:** real
+    Google sign-in created the user row (+50 starter tokens, ledger entry, referral code
+    U4D8UWQ, login event); server-side session-crafted generation tests confirmed deduction
+    50→49→48 with correct token_transactions + usage_logs rows.
+  - **NOT yet done:** the same 4 env vars in the **Render dashboard** (live site still runs
+    Phase-1 mode); Google OAuth app is in **Testing** mode (only the owner can sign in — needs
+    Audience → Publish app before real users); referral reward end-to-end (needs a 2nd Google
+    account); ADMIN_PASSWORD rotation (user deferred — a persistent-memory reminder exists to
+    flag it before any customer launch).
+
+- **UI redesign (2026-07-02 session, shipped in this commit).** All-frontend, zero backend/API
+  changes (form still posts the same fields — count moved from a <select> to radio pills, read
+  via `input[name="count"]:checked` in readForm()):
+  - Numbered 5-step form → compact sections; Language + Count + Perspective in one
+    `.options-row` strip (segmented pills via hidden radios + `input:checked + span` CSS).
+  - 20 style checkboxes → tappable emoji chips (`.chips .opt`, hidden checkbox + `:has()` for
+    the selected state); collapsed to the first 8 with "+ More styles" (`#moreStylesBtn`);
+    selected chips beyond 8 stay visible when collapsed.
+  - Topbar: placeholder tabs (Recent/Saved/Settings) REMOVED until those pages exist — re-add
+    per tab when shipped (nav click handler in app.js was kept).
+  - Empty state: 3 one-tap example chips (`.example-chip`, i18n keys empty.ex1-3) that fill the
+    message box and auto-select Friend if no style picked.
+  - Reply cards: bigger text (1.02rem/1.75 line-height for Tamil), staggered fade-up entrance
+    (respects prefers-reduced-motion); generate bar is sticky-bottom on ≤900px screens.
+  - i18n: all new strings exist in **en.json AND ta.json** (full Tamil translations added,
+    including token/login/referral/plans/dashboard strings); the other 8 dictionaries still
+    fall back to English for the new keys.
 
 ## Deployment (DONE — read before redeploying)
 - **GitHub:** https://github.com/kannammaiglasgow-prog/ai-reply-assistant, branch `main`. Always

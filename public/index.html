@@ -17,12 +17,8 @@
       <span class="brand-name" data-i18n="nav.brandName">AI Reply Assistant</span>
     </div>
 
-    <nav class="nav">
-      <a href="#" class="nav-link active" data-tab="Home" data-i18n="nav.home">Home</a>
-      <a href="#" class="nav-link" data-tab="Recent" data-i18n="nav.recent">Recent</a>
-      <a href="#" class="nav-link" data-tab="Saved Replies" data-i18n="nav.saved">Saved Replies</a>
-      <a href="#" class="nav-link" data-tab="Settings" data-i18n="nav.settings">Settings</a>
-    </nav>
+    <!-- Placeholder tabs (Recent / Saved / Settings) removed until those pages are real —
+         showing "coming soon" tabs erodes trust. Re-add each one as it ships. -->
 
     <div class="topbar-right">
       <div id="uiLanguagePicker" class="lang-picker-slot" data-i18n-title="nav.interfaceLanguageTitle" title="Interface language"></div>
@@ -64,8 +60,7 @@
     <section class="panel form-panel">
       <form id="generator">
         <div class="block">
-          <div class="block-head">
-            <span class="step">1</span>
+          <div class="block-head compact">
             <h2 data-i18n="step1.title">Paste Message or URL</h2>
           </div>
 
@@ -107,51 +102,40 @@
           </div>
         </div>
 
-        <div class="block two-col">
-          <div>
-            <div class="block-head">
-              <span class="step">2</span>
-              <h2 data-i18n="step2.title">Output Language</h2>
-            </div>
-            <!-- Real form control (kept for existing readForm()/fetchContext() logic); the
-                 searchable picker below is the visible UI and keeps this select in sync. -->
+        <!-- Options row: language + count + perspective as one compact strip.
+             The hidden #language select stays the real form control for readForm(). -->
+        <div class="block options-row">
+          <div class="opt-group">
+            <span class="field-label" data-i18n="step2.title">Output Language</span>
             <select id="language" hidden></select>
             <div id="outputLanguagePicker"></div>
           </div>
-          <div>
-            <div class="block-head">
-              <span class="step">3</span>
-              <h2 data-i18n="step3.title">Number of Replies</h2>
+          <div class="opt-group">
+            <span class="field-label" data-i18n="step3.title">Number of Replies</span>
+            <div class="segmented" id="countSeg">
+              <label><input type="radio" name="count" value="1" checked /><span>1</span></label>
+              <label><input type="radio" name="count" value="3" /><span>3</span></label>
+              <label><input type="radio" name="count" value="5" /><span>5</span></label>
+              <label><input type="radio" name="count" value="10" /><span>10</span></label>
+              <label><input type="radio" name="count" value="20" /><span>20</span></label>
             </div>
-            <select id="count">
-              <option value="1" selected data-i18n-count="1">1 Reply</option>
-              <option value="3" data-i18n-count="3">3 Replies</option>
-              <option value="5" data-i18n-count="5">5 Replies</option>
-              <option value="10" data-i18n-count="10">10 Replies</option>
-              <option value="20" data-i18n-count="20">20 Replies</option>
-            </select>
+          </div>
+          <div class="opt-group">
+            <span class="field-label" data-i18n="step4.title">Perspective</span>
+            <div class="segmented" id="perspective">
+              <label><input type="radio" name="perspective" value="All" checked /><span data-i18n="step4.all">All</span></label>
+              <label><input type="radio" name="perspective" value="Supporter" /><span data-i18n="step4.supporter">Supporter</span></label>
+              <label><input type="radio" name="perspective" value="Opposition" /><span data-i18n="step4.opposition">Opposition</span></label>
+              <label><input type="radio" name="perspective" value="Neutral" /><span data-i18n="step4.neutral">Neutral</span></label>
+            </div>
           </div>
         </div>
 
         <div class="block">
-          <div class="block-head">
-            <span class="step">4</span>
-            <h2 data-i18n="step4.title">Perspective</h2>
-          </div>
-          <div class="radio-row" id="perspective">
-            <label class="opt"><input type="radio" name="perspective" value="All" checked /> <span data-i18n="step4.all">All</span></label>
-            <label class="opt"><input type="radio" name="perspective" value="Supporter" /> <span data-i18n="step4.supporter">Supporter</span></label>
-            <label class="opt"><input type="radio" name="perspective" value="Opposition" /> <span data-i18n="step4.opposition">Opposition</span></label>
-            <label class="opt"><input type="radio" name="perspective" value="Neutral" /> <span data-i18n="step4.neutral">Neutral</span></label>
-          </div>
-        </div>
-
-        <div class="block">
-          <div class="block-head">
-            <span class="step">5</span>
+          <div class="block-head compact">
             <h2><span data-i18n="step5.title">Reply Styles</span> <small data-i18n="step5.hint">(pick at least one)</small></h2>
           </div>
-          <div class="checkbox-grid" id="styles">
+          <div class="chips styles-collapsed" id="styles">
             <label class="opt"><input type="checkbox" name="style" value="Friend" /> <span data-i18n="step5.styleFriend">Friend</span> 😊</label>
             <label class="opt"><input type="checkbox" name="style" value="Casual Chat" /> <span data-i18n="step5.styleCasualChat">Casual Chat</span> 💬</label>
             <label class="opt"><input type="checkbox" name="style" value="Angry" /> <span data-i18n="step5.styleAngry">Angry</span> 😡</label>
@@ -173,13 +157,16 @@
             <label class="opt"><input type="checkbox" name="style" value="SMS Short" /> <span data-i18n="step5.styleSmsShort">SMS / Short Reply</span> 📱</label>
             <label class="opt"><input type="checkbox" name="style" value="AI Robot" /> <span data-i18n="step5.styleAiRobot">AI / Robot</span> 🤖</label>
           </div>
+          <button type="button" id="moreStylesBtn" class="chip chip-more" data-i18n="step5.showMore">+ More styles</button>
         </div>
 
-        <button type="submit" id="generateBtn" class="primary-btn" data-i18n="generate.button">⚡ Generate AI Replies</button>
-
-        <div class="usage-row">
-          <span id="usageCounter" class="muted"></span>
-          <button type="button" id="topupBtn" class="ghost-btn hidden" data-i18n="generate.topUp">Top Up</button>
+        <!-- Sticky on mobile so Generate is always reachable without scrolling back down -->
+        <div class="gen-bar">
+          <button type="submit" id="generateBtn" class="primary-btn" data-i18n="generate.button">⚡ Generate AI Replies</button>
+          <div class="usage-row">
+            <span id="usageCounter" class="muted"></span>
+            <button type="button" id="topupBtn" class="ghost-btn hidden" data-i18n="generate.topUp">Top Up</button>
+          </div>
         </div>
       </form>
     </section>
@@ -191,6 +178,13 @@
         <div class="empty-icon">💬</div>
         <h3 data-i18n="empty.title">Your AI replies will appear here</h3>
         <p class="muted" data-i18n="empty.desc">Paste your message, select options and click “Generate AI Replies” to get started.</p>
+        <!-- One-tap examples: clicking fills the message box so new users see it work instantly -->
+        <div class="example-chips">
+          <span class="muted example-chips-label" data-i18n="empty.tryTitle">Try one:</span>
+          <button type="button" class="example-chip" data-example="empty.ex1" data-i18n="empty.ex1Label">🏏 Sports comment</button>
+          <button type="button" class="example-chip" data-example="empty.ex2" data-i18n="empty.ex2Label">🎉 Congratulate a friend</button>
+          <button type="button" class="example-chip" data-example="empty.ex3" data-i18n="empty.ex3Label">💼 Reply to your boss</button>
+        </div>
         <div class="info-cards">
           <div class="info-card">
             <strong data-i18n="empty.tipTitle">💡 Tip</strong>
