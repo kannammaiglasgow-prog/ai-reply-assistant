@@ -29,9 +29,9 @@
     "messagePlaceholder": "Paste any message, question, news, comment, email or conversation here — or fetch context from a URL above.",
     "charCount": "{count} / {max} characters",
     "clearBtn": "⟲ Clear",
-    "attachImage": "🖼️ Attach image",
-    "changeImage": "🖼️ Change image",
-    "attachHint": "Upload or just paste (Ctrl+V) a screenshot — Instagram / Facebook / X posts work great",
+    "attachImage": "🖼️ Attach image / video",
+    "changeImage": "🖼️ Change attachment",
+    "attachHint": "Paste (Ctrl+V) a screenshot or attach a short video (max 12 MB) — Instagram / Facebook / X posts work great",
     "removeImageTitle": "Remove image"
   },
   "step2": {
@@ -185,7 +185,8 @@
     "signedOut": "Signed out",
     "regenerateFailed": "Regenerate failed",
     "networkError": "Network error",
-    "dailyLimitReached": "Daily free limit reached. Top up to generate more."
+    "dailyLimitReached": "Daily free limit reached. Top up to generate more.",
+    "tryScreenshot": "Tip: screenshots work great — just Ctrl+V the post here!"
   },
   "errors": {
     "pasteMessageOrImage": "Paste a message or attach an image first.",
@@ -198,8 +199,10 @@
     "couldNotFetchContext": "Could not fetch context.",
     "couldNotFetchAutoManual": "Could not fetch automatically — paste the details manually.",
     "networkErrorContext": "Network error fetching context.",
-    "chooseImageFile": "Please choose an image file.",
-    "couldNotReadImage": "Could not read that image. Try another file."
+    "chooseImageFile": "Please choose an image or video file.",
+    "couldNotReadImage": "Could not read that file. Try another one.",
+    "videoTooLarge": "Video is too large (max {max} MB). Try a shorter clip.",
+    "socialScreenshotHint": "{platform} blocks automatic fetching — take a screenshot of the post and paste it here (Ctrl+V) instead. 📸"
   },
   "footer": {
     "text": "AI-generated suggestions — review before posting. The engine is instructed not to invent facts; always verify claims yourself."

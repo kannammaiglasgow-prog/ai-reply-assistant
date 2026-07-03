@@ -59,6 +59,7 @@ let replies = [];
 let lastParams = null; // remember message/perspective/language/image for regenerate
 let idSeq = 0;
 let attachedImage = null; // data URL of the attached image, or null
+let attachedVideo = null; // data URL of the attached video (≤12 MB), or null — Gemini-only feature
 
 // ===== Theme =====
 (function initTheme() {
@@ -407,17 +408,44 @@ clearBtn.addEventListener('click', () => {
 attachBtn.addEventListener('click', () => imageInput.click());
 removeImageBtn.addEventListener('click', clearImage);
 
+const MAX_VIDEO_MB = 12;
+
 async function setImageFromFile(file) {
-  if (!file || !file.type.startsWith('image/')) return setStatus(i18n.t('errors.chooseImageFile'), true);
+  if (!file) return;
+  if (file.type.startsWith('video/')) return setVideoFromFile(file);
+  if (!file.type.startsWith('image/')) return setStatus(i18n.t('errors.chooseImageFile'), true);
   try {
+    clearImage();
     attachedImage = await fileToResizedDataURL(file);
     previewImg.src = attachedImage;
+    previewImg.classList.remove('hidden');
     imagePreview.classList.remove('hidden');
     attachBtn.textContent = i18n.t('step1.changeImage');
     setStatus('');
   } catch {
     setStatus(i18n.t('errors.couldNotReadImage'), true);
   }
+}
+
+// Videos can't be downscaled client-side, so enforce the size cap before reading.
+function setVideoFromFile(file) {
+  if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
+    return setStatus(i18n.t('errors.videoTooLarge', { max: MAX_VIDEO_MB }), true);
+  }
+  const reader = new FileReader();
+  reader.onerror = () => setStatus(i18n.t('errors.couldNotReadImage'), true);
+  reader.onload = () => {
+    clearImage();
+    attachedVideo = reader.result;
+    const vid = $('previewVideo');
+    vid.src = attachedVideo;
+    vid.classList.remove('hidden');
+    previewImg.classList.add('hidden');
+    imagePreview.classList.remove('hidden');
+    attachBtn.textContent = i18n.t('step1.changeImage');
+    setStatus('');
+  };
+  reader.readAsDataURL(file);
 }
 
 imageInput.addEventListener('change', async () => {
@@ -445,7 +473,10 @@ document.addEventListener('paste', (e) => {
 
 function clearImage() {
   attachedImage = null;
+  attachedVideo = null;
   previewImg.removeAttribute('src');
+  const vid = $('previewVideo');
+  if (vid) { vid.removeAttribute('src'); vid.classList.add('hidden'); }
   imagePreview.classList.add('hidden');
   attachBtn.textContent = i18n.t('step1.attachImage');
 }
@@ -499,7 +530,14 @@ async function fetchContext() {
     if (!res.ok) { setStatus(data.error || i18n.t('errors.couldNotFetchContext'), true); return; }
     if (data.needsManual) {
       contextCard.classList.add('hidden');
-      setStatus(data.message || i18n.t('errors.couldNotFetchAutoManual'), true);
+      // Instagram/Facebook/TikTok lock their data down — guide the user to the screenshot
+      // flow (which works great) instead of showing a dead-end "fetch failed" error.
+      if (['instagram', 'facebook', 'tiktok'].includes(data.platform)) {
+        setStatus(i18n.t('errors.socialScreenshotHint', { platform: data.platform.charAt(0).toUpperCase() + data.platform.slice(1) }), true);
+        toast(i18n.t('toast.tryScreenshot'), 4200);
+      } else {
+        setStatus(data.message || i18n.t('errors.couldNotFetchAutoManual'), true);
+      }
       return;
     }
     renderContext(data);
@@ -579,6 +617,7 @@ function readForm() {
   return {
     message: messageEl.value.trim(),
     image: attachedImage || undefined,
+    video: attachedVideo || undefined,
     perspective: document.querySelector('input[name="perspective"]:checked')?.value,
     styles: [...document.querySelectorAll('input[name="style"]:checked')].map((c) => c.value),
     language: $('language').value,
@@ -752,7 +791,7 @@ function showSkeletons(n) {
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const p = readForm();
-  if (!p.message && !p.image) return setStatus(i18n.t('errors.pasteMessageOrImage'), true);
+  if (!p.message && !p.image && !p.video) return setStatus(i18n.t('errors.pasteMessageOrImage'), true);
   if (p.styles.length === 0) return setStatus(i18n.t('errors.selectStyle'), true);
 
   if (!appConfig.tokenSystem) {
@@ -770,7 +809,7 @@ form.addEventListener('submit', async (e) => {
     }
   }
 
-  lastParams = { message: p.message, image: p.image, perspective: p.perspective, language: p.language };
+  lastParams = { message: p.message, image: p.image, video: p.video, perspective: p.perspective, language: p.language };
   generateBtn.disabled = true;
   setStatus(i18n.t('generate.generatingCount', { count: p.count }));
   showSkeletons(p.count);
@@ -1028,7 +1067,7 @@ initAuth();
 i18n.onChange(() => {
   refreshUsageUI();
   charCount.textContent = i18n.t('step1.charCount', { count: messageEl.value.length, max: 5000 });
-  attachBtn.textContent = attachedImage ? i18n.t('step1.changeImage') : i18n.t('step1.attachImage');
+  attachBtn.textContent = (attachedImage || attachedVideo) ? i18n.t('step1.changeImage') : i18n.t('step1.attachImage');
   if (!resultsWrap.classList.contains('hidden')) renderResults();
 });
 

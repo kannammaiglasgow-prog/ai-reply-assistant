@@ -92,12 +92,13 @@
           </div>
 
           <div class="image-attach">
-            <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
-            <button type="button" id="attachBtn" class="ghost-btn" data-i18n="step1.attachImage">🖼️ Attach image</button>
-            <span class="muted attach-hint" data-i18n="step1.attachHint">Upload or just paste (Ctrl+V) a screenshot — Instagram / Facebook / X posts work great</span>
+            <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm,video/quicktime,video/3gpp" hidden />
+            <button type="button" id="attachBtn" class="ghost-btn" data-i18n="step1.attachImage">🖼️ Attach image / video</button>
+            <span class="muted attach-hint" data-i18n="step1.attachHint">Upload or just paste (Ctrl+V) a screenshot — or attach a short video (max 12 MB)</span>
             <div id="imagePreview" class="image-preview hidden">
               <img id="previewImg" alt="attached preview" />
-              <button type="button" id="removeImageBtn" class="remove-img" data-i18n-title="step1.removeImageTitle" title="Remove image">✕</button>
+              <video id="previewVideo" class="hidden" controls muted playsinline></video>
+              <button type="button" id="removeImageBtn" class="remove-img" data-i18n-title="step1.removeImageTitle" title="Remove attachment">✕</button>
             </div>
           </div>
         </div>

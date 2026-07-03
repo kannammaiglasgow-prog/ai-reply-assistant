@@ -225,7 +225,7 @@ async function generateJson(systemText, userText, temperature, image) {
 }
 
 const app = express();
-app.use(express.json({ limit: '12mb' })); // larger limit so uploaded images (base64) fit
+app.use(express.json({ limit: '30mb' })); // uploaded images/videos travel as base64 JSON
 
 // Invite links: /invite/<CODE> (legacy) and /ref/<CODE> (spec shape) drop the code into the URL
 // the SPA loads, so the sign-in flow can forward it as referred_by. A click alone creates
@@ -591,21 +591,30 @@ function buildSystemPrompt() {
   ].join('\n');
 }
 
-function buildUserPrompt({ message, perspective, styles, language, count, hasImage }) {
+function buildUserPrompt({ message, perspective, styles, language, count, mediaKind }) {
   const styleList = styles.map((s) => `- ${s}: ${STYLE_HINTS[s] || ''}`).join('\n');
-  const source = hasImage
-    ? [
-        'An IMAGE has been attached — it is usually a screenshot of a social-media post, comment, conversation, or news.',
-        'Carefully read EVERYTHING in the image, including any text (Tamil or English), and treat its content as the message to respond to.',
-        message ? `The user also added this note/caption:\n"""\n${message}\n"""` : '',
-      ]
-        .filter(Boolean)
-        .join('\n')
-    : `Read the following message carefully. Every reply you write must respond directly and specifically to it.\n\nMESSAGE TO RESPOND TO:\n"""\n${message}\n"""`;
+  const source =
+    mediaKind === 'video'
+      ? [
+          'A VIDEO has been attached — it is usually a social-media reel/short, a recorded moment, or a clip someone shared.',
+          'Watch it carefully: what happens on screen, any speech or song (Tamil or English), any on-screen text or captions. Treat the FULL video content as the message/post to respond to.',
+          message ? `The user also added this note/caption:\n"""\n${message}\n"""` : '',
+        ]
+          .filter(Boolean)
+          .join('\n')
+      : mediaKind === 'image'
+      ? [
+          'An IMAGE has been attached — it is usually a screenshot of a social-media post, comment, conversation, or news.',
+          'Carefully read EVERYTHING in the image, including any text (Tamil or English), and treat its content as the message to respond to.',
+          message ? `The user also added this note/caption:\n"""\n${message}\n"""` : '',
+        ]
+          .filter(Boolean)
+          .join('\n')
+      : `Read the following message carefully. Every reply you write must respond directly and specifically to it.\n\nMESSAGE TO RESPOND TO:\n"""\n${message}\n"""`;
   // Explicit request/instruction summary (kept in addition to, not instead of, the detailed
   // style engines / language / perspective rules below — this just restates the ask plainly).
   const requestSummary = [
-    `User Question: ${hasImage ? '(see attached image' + (message ? ' + note below' : '') + ')' : message}`,
+    `User Question: ${mediaKind ? `(see attached ${mediaKind}` + (message ? ' + note below)' : ')') : message}`,
     `Selected Reply Style: ${styles.join(', ')}`,
     `Selected Output Language: ${language}`,
     `Instruction: Generate the replies in the selected output language. Keep the selected reply style(s) consistent. Return ${count} unique repl${count === 1 ? 'y' : 'ies'}.`,
@@ -615,7 +624,7 @@ function buildUserPrompt({ message, perspective, styles, language, count, hasIma
     '',
     source,
     '',
-    `Write exactly ${count} reply suggestions, each one a direct, on-topic response to the message${hasImage ? '/image' : ''} above.`,
+    `Write exactly ${count} reply suggestions, each one a direct, on-topic response to the message${mediaKind ? '/' + mediaKind : ''} above.`,
     '',
     `OUTPUT LANGUAGE: ${language}. ${languageInstruction(language)}`,
     '',
@@ -647,6 +656,22 @@ function parseImage(dataUrl) {
   return { image: { mimeType, data } };
 }
 
+// Video replies (Gemini video understanding). Inline base64 only, so the file must stay small
+// enough for Gemini's ~20 MB request cap — 12 MB of raw video ≈ 16 MB base64 leaves headroom.
+const VIDEO_MIMES = ['video/mp4', 'video/webm', 'video/quicktime', 'video/3gpp'];
+const MAX_VIDEO_BYTES = 12 * 1024 * 1024; // 12 MB decoded
+
+function parseVideo(dataUrl) {
+  if (typeof dataUrl !== 'string') return { error: 'Invalid video.' };
+  const m = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!m) return { error: 'Invalid video format.' };
+  const mimeType = m[1].toLowerCase();
+  if (!VIDEO_MIMES.includes(mimeType)) return { error: 'Unsupported video type. Use MP4, WEBM, MOV, or 3GP.' };
+  const data = m[2];
+  if (data.length * 0.75 > MAX_VIDEO_BYTES) return { error: 'Video is too large (max 12 MB). Try a shorter clip.' };
+  return { video: { mimeType, data } };
+}
+
 function validateBody(body) {
   const message = typeof body.message === 'string' ? body.message.trim() : '';
 
@@ -657,7 +682,18 @@ function validateBody(body) {
     image = parsed.image;
   }
 
-  if (!message && !image) return { error: 'Please paste a message or attach an image.' };
+  let video = null;
+  if (body.video) {
+    const parsed = parseVideo(body.video);
+    if (parsed.error) return { error: parsed.error };
+    video = parsed.video;
+    // Only Gemini understands video; the OpenAI-compatible providers would choke on it.
+    if (PROVIDER !== 'gemini') {
+      return { error: 'Video replies need the Gemini provider. Set PROVIDER=gemini on the server.' };
+    }
+  }
+
+  if (!message && !image && !video) return { error: 'Please paste a message or attach an image/video.' };
   if (message.length > 8000) return { error: 'Message is too long (max 8000 characters).' };
 
   const perspective = PERSPECTIVES.includes(body.perspective) ? body.perspective : null;
@@ -672,7 +708,7 @@ function validateBody(body) {
   const count = COUNTS.includes(Number(body.count)) ? Number(body.count) : null;
   if (!count) return { error: 'Invalid number of replies.' };
 
-  return { message, image, perspective, styles, language, count };
+  return { message, image, video, perspective, styles, language, count };
 }
 
 // Decide whether this request is allowed to generate, and how it will be charged.
@@ -756,11 +792,14 @@ async function handleGenerate(req, res) {
   }
 
   try {
-    const userPrompt = buildUserPrompt({ ...parsed, hasImage: !!parsed.image });
+    // Video and image both travel to Gemini as inline_data; video is Gemini-only (validated above).
+    const media = parsed.video || parsed.image;
+    const mediaKind = parsed.video ? 'video' : parsed.image ? 'image' : null;
+    const userPrompt = buildUserPrompt({ ...parsed, mediaKind });
     // The model occasionally returns malformed JSON — retry once before giving up.
     let data = null;
     for (let attempt = 0; attempt < 2 && !data; attempt++) {
-      const raw = await generateJson(buildSystemPrompt(), userPrompt, 0.7, parsed.image);
+      const raw = await generateJson(buildSystemPrompt(), userPrompt, 0.7, media);
       data = tryParseJson(raw);
     }
     if (!data) {
@@ -791,6 +830,7 @@ async function handleGenerate(req, res) {
       count: parsed.count,
       styles: parsed.styles,
       hasImage: !!parsed.image,
+      hasVideo: !!parsed.video,
     });
 
     // Charge tokens / bump the guest counter now that generation succeeded.
@@ -834,7 +874,14 @@ app.post('/api/regenerate', async (req, res) => {
     if (parsedImg.error) return res.status(400).json({ error: parsedImg.error });
     image = parsedImg.image;
   }
-  if (!message && !image) return res.status(400).json({ error: 'Missing message or image.' });
+  let video = null;
+  if (body.video) {
+    const parsedVid = parseVideo(body.video);
+    if (parsedVid.error) return res.status(400).json({ error: parsedVid.error });
+    if (PROVIDER !== 'gemini') return res.status(400).json({ error: 'Video replies need the Gemini provider.' });
+    video = parsedVid.video;
+  }
+  if (!message && !image && !video) return res.status(400).json({ error: 'Missing message or image/video.' });
 
   const style = STYLES.includes(body.style) ? body.style : null;
   if (!style) return res.status(400).json({ error: 'Invalid style.' });
@@ -852,11 +899,12 @@ app.post('/api/regenerate', async (req, res) => {
   if (!gate.allow) return res.status(gate.status).json(gate.body);
 
   try {
+    const media = video || image;
     const raw = await generateJson(
       buildSystemPrompt(),
-      buildUserPrompt({ message, perspective, styles: [style], language, count: 1, hasImage: !!image }),
+      buildUserPrompt({ message, perspective, styles: [style], language, count: 1, mediaKind: video ? 'video' : image ? 'image' : null }),
       0.8,
-      image
+      media
     );
     const data = tryParseJson(raw);
     if (!data) {

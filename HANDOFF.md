@@ -313,6 +313,22 @@ architecture, data model, and build order are in **`PHASE2-SPEC.md`** — start 
     account); ADMIN_PASSWORD rotation (user deferred — a persistent-memory reminder exists to
     flag it before any customer launch).
 
+- **Video replies + social-link guidance (2026-07-03).**
+  - 🎬 **Video attach:** the attach button now accepts MP4/WEBM/MOV/3GP up to 12 MB (inline
+    base64 → Gemini's ~20 MB request cap; bigger files would need the Gemini Files API — not
+    built). Video goes through the same `inline_data` path as images (`parseVideo` +
+    `media = video || image` in server.js); `buildUserPrompt` takes `mediaKind`
+    ('image'|'video'|null) instead of the old `hasImage`. **Gemini-only** — validateBody
+    rejects video for other providers with a clear error. express.json limit raised 12mb→30mb.
+    Frontend: `attachedVideo` + `#previewVideo` player; same guest/token gating.
+    Verified E2E with a canvas-generated webm — Gemini genuinely watched it (reply referenced
+    the on-screen text AND mocked the visuals). NOTE: rAF is throttled in background tabs —
+    test videos must be drawn with setInterval.
+  - 📸 **Instagram/Facebook/TikTok links:** still can't be fetched (Meta requires an approved
+    developer app; scraping is blocked/ToS-hostile — deliberate non-feature). The frontend now
+    shows a localized hint steering users to the screenshot-paste flow instead of the old
+    dead-end English error (`errors.socialScreenshotHint` + `toast.tryScreenshot`, en+ta).
+
 - **UI redesign (2026-07-02 session, shipped in this commit).** All-frontend, zero backend/API
   changes (form still posts the same fields — count moved from a <select> to radio pills, read
   via `input[name="count"]:checked` in readForm()):

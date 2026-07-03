@@ -323,13 +323,16 @@ textarea:focus, select:focus {
 .image-attach { margin-top: 12px; }
 .attach-hint { margin-left: 8px; font-size: 0.8rem; }
 .image-preview { position: relative; width: fit-content; margin-top: 10px; }
-.image-preview img {
+.image-preview img,
+.image-preview video {
   display: block;
   max-width: 200px;
   max-height: 150px;
   border-radius: 10px;
   border: 1px solid var(--border);
 }
+.image-preview img.hidden,
+.image-preview video.hidden { display: none; }
 .remove-img {
   position: absolute;
   top: -8px; right: -8px;
